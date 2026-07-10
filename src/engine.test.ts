@@ -35,11 +35,10 @@ function mov(partial: Partial<Mov> & Pick<Mov, 'type' | 'amount' | 'date'>): Mov
 }
 
 describe('accountEffect', () => {
-  it('entrada soma, saída/diário/economia subtraem, cartão neutro', () => {
+  it('entrada soma, saída/diário/aporte subtraem, cartão neutro', () => {
     expect(accountEffect(mov({ type: 'entrada', amount: 10, date: '2026-07-01' }))).toBe(10)
     expect(accountEffect(mov({ type: 'saida', amount: 10, date: '2026-07-01' }))).toBe(-10)
     expect(accountEffect(mov({ type: 'diario', amount: 10, date: '2026-07-01' }))).toBe(-10)
-    expect(accountEffect(mov({ type: 'economia', amount: 10, date: '2026-07-01' }))).toBe(-10)
     expect(accountEffect(mov({ type: 'cartao', amount: 10, date: '2026-07-01' }))).toBe(0)
     expect(accountEffect(mov({ type: 'investimento', direction: 'aporte', amount: 10, date: '2026-07-01' }))).toBe(-10)
     expect(accountEffect(mov({ type: 'investimento', direction: 'resgate', amount: 10, date: '2026-07-01' }))).toBe(10)
@@ -113,17 +112,16 @@ describe('monthTotals', () => {
       mov({ type: 'entrada', amount: 5000, date: '2026-07-01' }),
       mov({ type: 'saida', amount: 2000, date: '2026-07-05' }),
       mov({ type: 'diario', amount: 300, date: '2026-07-08' }),
-      mov({ type: 'economia', amount: 250, date: '2026-07-09' }),
       mov({ type: 'cartao', amount: 400, date: '2026-07-09' }),
-      mov({ type: 'investimento', direction: 'aporte', amount: 250, date: '2026-07-09', boxId: 'b1' }),
+      mov({ type: 'investimento', direction: 'aporte', amount: 500, date: '2026-07-09', boxId: 'b1' }),
     ]
     const t = monthTotals(s, 2026, 7, '2026-07-10')
     // previsão: dias 11..31 = 21 dias × 20 = 420
     expect(t.forecastCount).toBe(21)
     expect(t.forecastTotal).toBe(420)
     expect(t.custoDeVida).toBe(2000 + 300 + 400 + 420)
-    expect(t.performance).toBe(5000 - 2000 - 300 - 250 - 400 - 420)
-    expect(t.economizadoPct).toBe(10) // (250 economia + 250 aporte) / 5000
+    expect(t.performance).toBe(5000 - 2000 - 300 - 400 - 500 - 420)
+    expect(t.economizadoPct).toBe(10) // 500 de aporte / 5000 de entradas
     expect(t.diarioMedio).toBe(30) // 300 / 10 dias
   })
 })

@@ -8,20 +8,26 @@ export function mkId(): string {
 }
 
 function defaultState(): AppState {
+  // Sem tags nem caixinhas de exemplo: cada usuário cria as suas,
+  // com os nomes, valores e prazos que quiser.
   return {
-    version: 1,
-    accounts: [{ id: mkId(), name: 'Conta principal', color: '#111111', initialBalance: 0 }],
+    version: 2,
+    accounts: [{ id: mkId(), name: 'Conta principal', color: '#0B3A2A', initialBalance: 0 }],
     cards: [],
-    tags: [
-      { id: mkId(), name: 'ALIMENTAÇÃO', color: '#e8e28a', isDaily: true, monthlyBudget: 200 },
-      { id: mkId(), name: 'TRANSPORTE', color: '#a8cdf0', isDaily: true, monthlyBudget: 500 },
-      { id: mkId(), name: 'LAZER', color: '#8fd68a', isDaily: true, monthlyBudget: 500 },
-      { id: mkId(), name: 'SAÚDE', color: '#d8c8a8', isDaily: true, monthlyBudget: 150 },
-    ],
+    tags: [],
     boxes: [],
     movs: [],
     settings: { savingsGoalPct: 10 },
   }
+}
+
+// Migração v1 → v2: o tipo "economia" foi unificado com "investimento"
+// (aporte em caixinha).
+function migrate(state: AppState): AppState {
+  const movs = state.movs.map((m) =>
+    (m.type as string) === 'economia' ? { ...m, type: 'investimento' as const, direction: m.direction ?? ('aporte' as const) } : m
+  )
+  return { ...state, movs, version: 2 }
 }
 
 function load(): AppState {
@@ -30,7 +36,7 @@ function load(): AppState {
     if (!raw) return defaultState()
     const parsed = JSON.parse(raw) as AppState
     if (!parsed || !Array.isArray(parsed.movs)) return defaultState()
-    return { ...defaultState(), ...parsed, settings: { ...defaultState().settings, ...parsed.settings } }
+    return migrate({ ...defaultState(), ...parsed, settings: { ...defaultState().settings, ...parsed.settings } })
   } catch {
     return defaultState()
   }
@@ -171,7 +177,7 @@ export function parseImport(raw: string): AppState | null {
   try {
     const parsed = JSON.parse(raw) as AppState
     if (!parsed || !Array.isArray(parsed.movs) || !Array.isArray(parsed.accounts)) return null
-    return { ...defaultState(), ...parsed }
+    return migrate({ ...defaultState(), ...parsed })
   } catch {
     return null
   }

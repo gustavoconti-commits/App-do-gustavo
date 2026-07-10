@@ -1,8 +1,9 @@
 // Tipos de movimentação, na mesma linha do app de referência:
 // entrada (+), saída (−), diário (−, conta no teto de gasto diário),
-// economia (−, dinheiro guardado), cartão (não afeta saldo em conta),
-// investimento (− aporte / + resgate, vinculado a uma caixinha).
-export type MovType = 'entrada' | 'saida' | 'diario' | 'economia' | 'cartao' | 'investimento'
+// cartão (não afeta saldo em conta) e investimento — que unifica
+// "economia" e "investimento": dinheiro guardado sai da conta e entra
+// na caixinha escolhida (− aporte / + resgate).
+export type MovType = 'entrada' | 'saida' | 'diario' | 'cartao' | 'investimento'
 
 export interface Account {
   id: string
@@ -81,9 +82,8 @@ export const TYPE_META: Record<
   entrada: { label: 'entrada', letter: 'E', color: '#14603C', verb: 'adicionar entrada' },
   saida: { label: 'saída', letter: 'S', color: '#A3402D', verb: 'adicionar saída' },
   diario: { label: 'diário', letter: 'D', color: '#B0135B', verb: 'adicionar diário' },
-  economia: { label: 'economia', letter: 'e', color: '#8AA593', verb: 'adicionar economia' },
   cartao: { label: 'gasto com cartão', letter: 'C', color: '#6A4FA3', verb: 'adicionar gasto com cartão' },
   investimento: { label: 'investimento', letter: 'I', color: '#C2A14E', verb: 'adicionar investimento' },
 }
 
-export const MOV_TYPES: MovType[] = ['entrada', 'saida', 'diario', 'economia', 'cartao', 'investimento']
+export const MOV_TYPES: MovType[] = ['entrada', 'saida', 'diario', 'cartao', 'investimento']

@@ -11,7 +11,6 @@ export function accountEffect(m: Mov): number {
       return m.amount
     case 'saida':
     case 'diario':
-    case 'economia':
       return -m.amount
     case 'investimento':
       return m.direction === 'resgate' ? m.amount : -m.amount
@@ -108,7 +107,7 @@ export function monthRows(state: AppState, y: number, m: number, today = todayIS
   for (let d = 1; d <= total; d++) {
     const iso = toISO(y, m, d)
     const movs = (byDate.get(iso) || []).slice().sort((a, b) => a.createdAt - b.createdAt)
-    const byType: Record<MovType, number> = { entrada: 0, saida: 0, diario: 0, economia: 0, cartao: 0, investimento: 0 }
+    const byType: Record<MovType, number> = { entrada: 0, saida: 0, diario: 0, cartao: 0, investimento: 0 }
     for (const mv of movs) {
       byType[mv.type] += mv.amount
       bal += accountEffect(mv)
@@ -124,7 +123,6 @@ export interface MonthTotals {
   entradas: number
   saidas: number
   diarios: number
-  economias: number
   cartao: number
   investAportes: number
   investResgates: number
@@ -141,14 +139,13 @@ export interface MonthTotals {
 
 export function monthTotals(state: AppState, y: number, m: number, today = todayISO()): MonthTotals {
   const rows = monthRows(state, y, m, today)
-  const t = { entradas: 0, saidas: 0, diarios: 0, economias: 0, cartao: 0, investAportes: 0, investResgates: 0 }
+  const t = { entradas: 0, saidas: 0, diarios: 0, cartao: 0, investAportes: 0, investResgates: 0 }
   let forecastCount = 0
   let forecastTotal = 0
   for (const r of rows) {
     t.entradas += r.byType.entrada
     t.saidas += r.byType.saida
     t.diarios += r.byType.diario
-    t.economias += r.byType.economia
     t.cartao += r.byType.cartao
     for (const mv of r.movs) {
       if (mv.type === 'investimento') {
@@ -170,8 +167,10 @@ export function monthTotals(state: AppState, y: number, m: number, today = today
   else daysElapsed = parseISO(today).d
 
   const custoDeVida = round2(t.saidas + t.diarios + t.cartao + forecastTotal)
-  const performance = round2(t.entradas - t.saidas - t.diarios - t.economias - t.cartao - forecastTotal)
-  const economizadoPct = t.entradas > 0 ? Math.round(((t.economias + t.investAportes) / t.entradas) * 100) : 0
+  const performance = round2(
+    t.entradas - t.saidas - t.diarios - t.cartao - t.investAportes + t.investResgates - forecastTotal
+  )
+  const economizadoPct = t.entradas > 0 ? Math.round((t.investAportes / t.entradas) * 100) : 0
   return {
     ...t,
     forecastCount,

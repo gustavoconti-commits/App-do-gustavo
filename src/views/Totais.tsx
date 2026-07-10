@@ -53,8 +53,8 @@ export function TotaisView({ year, month, onNav }: Props) {
           <div className="tot-sub">
             <span className="formula">
               <TypeIcon type="entrada" size={15} /> − <TypeIcon type="saida" size={15} /> −{' '}
-              <TypeIcon type="diario" size={15} /> − <TypeIcon type="economia" size={15} /> −{' '}
-              <TypeIcon type="cartao" size={15} /> − <TypeIcon type="diario" size={15} dashed />
+              <TypeIcon type="diario" size={15} /> − <TypeIcon type="cartao" size={15} /> −{' '}
+              <TypeIcon type="investimento" size={15} /> − <TypeIcon type="diario" size={15} dashed />
             </span>
             <span className="muted">{tot.performance < 0 ? 'faltou dinheiro' : 'sobrou dinheiro'}</span>
           </div>
@@ -67,8 +67,8 @@ export function TotaisView({ year, month, onNav }: Props) {
           </div>
           <div className="tot-sub">
             <span className="formula grow-bar">
-              <TypeIcon type="economia" size={15} />
-              <ProgressBar pct={(tot.economizadoPct / Math.max(goal, 1)) * 100} color="#63b30f" />
+              <TypeIcon type="investimento" size={15} />
+              <ProgressBar pct={(tot.economizadoPct / Math.max(goal, 1)) * 100} color="#C2A14E" />
               <TypeIcon type="entrada" size={15} />
             </span>
             <span className="muted">{tot.economizadoPct >= goal ? 'meta batida 🎉' : `abaixo do ideal (${goal}%)`}</span>
@@ -111,7 +111,6 @@ export function TotaisView({ year, month, onNav }: Props) {
           <Row type="entrada" label="entradas" value={tot.entradas} />
           <Row type="saida" label="saídas" value={tot.saidas} />
           <Row type="diario" label="diários" value={tot.diarios} />
-          <Row type="economia" label="economias" value={tot.economias} />
           <Row type="cartao" label="gastos com cartão" value={tot.cartao} />
           <Row type="investimento" label="investimentos (aportes)" value={tot.investAportes} />
           {tot.investResgates > 0 && <Row type="investimento" label="investimentos (resgates)" value={tot.investResgates} />}

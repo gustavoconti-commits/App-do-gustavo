@@ -17,6 +17,16 @@ function translateError(msg: string): string {
   return msg
 }
 
+// Cadastro travado pelo gatilho enforce_allowed_email (e-mail não pagou ainda).
+// O GoTrue devolve esse bloqueio como erro 500 genérico — a supabase-js trata
+// qualquer 500 como "falha de rede" e zera o texto da mensagem (vira "{}"),
+// então o único jeito confiável de reconhecer o caso é pelo status HTTP.
+function isBlockedSignup(error: { message: string; status?: number }): boolean {
+  if (error.status === 500) return true
+  const m = error.message.toLowerCase()
+  return m.includes('not_allowed') || m.includes('database error saving new user')
+}
+
 export function AuthView({ onDemo }: { onDemo: () => void }) {
   const [mode, setMode] = useState<Mode>('login')
   const [fullName, setFullName] = useState('')
@@ -26,6 +36,7 @@ export function AuthView({ onDemo }: { onDemo: () => void }) {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [blocked, setBlocked] = useState(false)
   const [busy, setBusy] = useState(false)
 
   async function submit(e: React.FormEvent) {
@@ -33,6 +44,7 @@ export function AuthView({ onDemo }: { onDemo: () => void }) {
     if (busy) return
     setError('')
     setNotice('')
+    setBlocked(false)
     setBusy(true)
     try {
       if (mode === 'login') {
@@ -61,7 +73,8 @@ export function AuthView({ onDemo }: { onDemo: () => void }) {
           },
         })
         if (error) {
-          setError(translateError(error.message))
+          if (isBlockedSignup(error)) setBlocked(true)
+          else setError(translateError(error.message))
         } else if (!data.session) {
           setNotice('cadastro criado! enviamos um link de confirmação para o seu e-mail — confirme e depois entre.')
           setMode('login')
@@ -149,7 +162,12 @@ export function AuthView({ onDemo }: { onDemo: () => void }) {
           </button>
         </form>
 
-        {error && <p className="lock-error">{error}</p>}
+        {blocked && (
+          <p className="lock-error">
+            <a href="#comprar">Quer acesso vitalício ao App de Controle Financeiro? Clique aqui!</a>
+          </p>
+        )}
+        {!blocked && error && <p className="lock-error">{error}</p>}
         {notice && <p className="lock-notice">{notice}</p>}
 
         {mode === 'login' && (

@@ -432,6 +432,7 @@ select { appearance: auto; }
 .lock-form input:focus { border-color: var(--dourado); }
 .btn.gold { background: var(--dourado); color: #3A2E0C; }
 .lock-error { color: var(--neg); font-size: 13px; font-weight: 600; margin-top: 6px; }
+.lock-error a { color: var(--sacre); text-decoration: underline; }
 .lock-hint { color: var(--muted); font-size: 12px; margin-top: 14px; line-height: 1.5; }
 .shake { animation: shake .35s; }
 @keyframes shake {
@@ -455,6 +456,16 @@ select { appearance: auto; }
 }
 .lock-notice { color: var(--sacre); font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }
 .auth-link.demo { margin-top: 16px; color: var(--patrimonio); font-size: 14px; }
+
+/* ---- página de vendas ---- */
+.comprar-card { max-width: 420px; }
+.comprar-title { font-family: var(--font-title); font-size: 20px; font-weight: 700; margin-top: 10px; line-height: 1.35; }
+.comprar-lista { list-style: none; text-align: left; width: 100%; margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+.comprar-lista li { color: var(--ink); font-size: 14px; }
+.comprar-preco { display: flex; align-items: baseline; justify-content: center; gap: 10px; margin-top: 20px; }
+.comprar-preco-antigo { color: var(--muted); font-size: 16px; text-decoration: line-through; }
+.comprar-preco-atual { color: var(--dourado); font-size: 34px; font-weight: 800; font-family: var(--font-title); }
+.comprar-cta { text-align: center; text-decoration: none; }
 
 /* ---- página de totais: fundo levemente diferenciado dos cards ---- */
 .totais { background: transparent; }

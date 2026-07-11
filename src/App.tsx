@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './cloud'
 import { DEMO_FLAG_KEY, DEMO_USER_ID, StoreProvider } from './store'
 import { AuthView, NewPasswordForm } from './views/Auth'
+import { ComprarView } from './views/Comprar'
 import { FluxFilter, SaldosView } from './views/Saldos'
 import { DayView } from './views/Day'
 import { TotaisView } from './views/Totais'
@@ -37,7 +38,20 @@ export function useSession() {
   return useContext(SessionCtx)
 }
 
+// Roteamento simples por hash: o app não tem servidor de rotas (GitHub Pages
+// serve só o index.html), então a página de vendas vive em "#comprar".
+function useHash() {
+  const [hash, setHash] = useState(() => window.location.hash)
+  useEffect(() => {
+    const onChange = () => setHash(window.location.hash)
+    window.addEventListener('hashchange', onChange)
+    return () => window.removeEventListener('hashchange', onChange)
+  }, [])
+  return hash
+}
+
 export default function App() {
+  const hash = useHash()
   const [session, setSession] = useState<Session | null>(null)
   const [ready, setReady] = useState(false)
   const [recovery, setRecovery] = useState(false)
@@ -61,6 +75,8 @@ export default function App() {
     })
     return () => sub.subscription.unsubscribe()
   }, [])
+
+  if (hash === '#comprar') return <ComprarView />
 
   if (!ready) {
     return (

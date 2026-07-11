@@ -9,9 +9,14 @@ interface Props {
   year: number
   month: number
   onNav: (y: number, m: number) => void
+  // navegação ao clicar nas linhas: fluxo do mês (com filtro opcional),
+  // aba investimentos ou aba diário
+  onGoSaldos: (typeFilter?: string) => void
+  onGoInvest: () => void
+  onGoDiario: () => void
 }
 
-export function TotaisView({ year, month, onNav }: Props) {
+export function TotaisView({ year, month, onNav, onGoSaldos, onGoInvest, onGoDiario }: Props) {
   const { state } = useStore()
   const today = todayISO()
   const tot = useMemo(() => monthTotals(state, year, month, today), [state, year, month, today])
@@ -45,7 +50,7 @@ export function TotaisView({ year, month, onNav }: Props) {
       <div className="totais">
         <h4 className="section-title">cálculos do mês</h4>
 
-        <div className="tot-card">
+        <div className="tot-card clickable" onClick={() => onGoSaldos()}>
           <div className="tot-head">
             <span className="tot-title">performance</span>
             <span className={`tot-value ${tot.performance < 0 ? 'neg' : 'pos'}`}>{fmtBRL(tot.performance)}</span>
@@ -60,7 +65,7 @@ export function TotaisView({ year, month, onNav }: Props) {
           </div>
         </div>
 
-        <div className="tot-card">
+        <div className="tot-card clickable" onClick={onGoInvest}>
           <div className="tot-head">
             <span className="tot-title">economizado</span>
             <span className="tot-value">{tot.economizadoPct}%</span>
@@ -75,7 +80,7 @@ export function TotaisView({ year, month, onNav }: Props) {
           </div>
         </div>
 
-        <div className="tot-card">
+        <div className="tot-card clickable" onClick={() => onGoSaldos()}>
           <div className="tot-head">
             <span className="tot-title">custo de vida</span>
             <span className="tot-value">{fmtBRL(tot.custoDeVida)}</span>
@@ -89,7 +94,7 @@ export function TotaisView({ year, month, onNav }: Props) {
           </div>
         </div>
 
-        <div className="tot-card">
+        <div className="tot-card clickable" onClick={onGoDiario}>
           <div className="tot-head">
             <span className="tot-title">diário médio</span>
             <span className={`tot-value ${tot.allowance > 0 && tot.diarioMedio > tot.allowance ? 'neg' : ''}`}>
@@ -108,42 +113,44 @@ export function TotaisView({ year, month, onNav }: Props) {
 
         <h4 className="section-title">movimentações do mês</h4>
         <div className="tot-list">
-          <Row type="entrada" label="entradas" value={tot.entradas} />
-          <Row type="saida" label="saídas" value={tot.saidas} />
-          <Row type="diario" label="diários" value={tot.diarios} />
-          <Row type="cartao" label="gastos com cartão" value={tot.cartao} />
-          <Row type="investimento" label="investimentos (aportes)" value={tot.investAportes} />
-          {tot.investResgates > 0 && <Row type="investimento" label="investimentos (resgates)" value={tot.investResgates} />}
+          <Row type="entrada" label="entradas" value={tot.entradas} onClick={() => onGoSaldos('type:entrada')} />
+          <Row type="saida" label="saídas" value={tot.saidas} onClick={() => onGoSaldos('type:saida')} />
+          <Row type="diario" label="diários" value={tot.diarios} onClick={() => onGoSaldos('type:diario')} />
+          <Row type="cartao" label="gastos com cartão" value={tot.cartao} onClick={() => onGoSaldos('type:cartao')} />
+          <Row type="investimento" label="investimentos (aportes)" value={tot.investAportes} onClick={onGoInvest} />
+          {tot.investResgates > 0 && (
+            <Row type="investimento" label="investimentos (resgates)" value={tot.investResgates} onClick={onGoInvest} />
+          )}
         </div>
 
         <h4 className="section-title">previsão de diários do mês</h4>
         <div className="tot-list">
-          <div className="tot-row">
+          <button className="tot-row clickable" onClick={onGoDiario}>
             <TypeIcon type="diario" size={20} dashed />
-            <span className="grow">previsão de diário × {tot.forecastCount}</span>
+            <span className="grow left">previsão de diário × {tot.forecastCount}</span>
             <strong>{fmtBRL(tot.forecastTotal)}</strong>
-          </div>
+          </button>
         </div>
 
         <h4 className="section-title">projeção</h4>
         <div className="tot-list">
-          <div className="tot-row">
+          <button className="tot-row clickable" onClick={() => onGoSaldos()}>
             <span className="row-ico">🏦</span>
-            <span className="grow">saldo projetado ao fim de {formatMonthYear(year, month)}</span>
+            <span className="grow left">saldo projetado ao fim de {formatMonthYear(year, month)}</span>
             <strong className={tot.endBalance < 0 ? 'neg' : ''}>{fmtBRL(tot.endBalance)}</strong>
-          </div>
+          </button>
         </div>
       </div>
     </div>
   )
 }
 
-function Row({ type, label, value }: { type: any; label: string; value: number }) {
+function Row({ type, label, value, onClick }: { type: any; label: string; value: number; onClick?: () => void }) {
   return (
-    <div className="tot-row">
+    <button className="tot-row clickable" onClick={onClick}>
       <TypeIcon type={type} size={20} />
-      <span className="grow">{label}</span>
+      <span className="grow left">{label}</span>
       <strong>{fmtBRL(value)}</strong>
-    </div>
+    </button>
   )
 }

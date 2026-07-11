@@ -23,14 +23,18 @@ export function initialBalanceTotal(state: AppState): number {
   return state.accounts.filter((a) => !a.archived).reduce((s, a) => s + a.initialBalance, 0)
 }
 
-// Teto mensal de gasto diário = soma dos orçamentos das tags marcadas como diário.
-export function dailyBudgetMonthly(tags: Tag[]): number {
-  return tags.filter((t) => t.isDaily && t.monthlyBudget).reduce((s, t) => s + (t.monthlyBudget || 0), 0)
+// Teto mensal de gasto diário = soma dos orçamentos das tags marcadas como
+// diário que já estão valendo no mês (respeita a data de início da tag).
+export function dailyBudgetMonthly(tags: Tag[], y: number, m: number): number {
+  const ym = `${y}-${String(m).padStart(2, '0')}`
+  return tags
+    .filter((t) => t.isDaily && t.monthlyBudget && (!t.startMonth || t.startMonth <= ym))
+    .reduce((s, t) => s + (t.monthlyBudget || 0), 0)
 }
 
 // Diária: teto mensal dividido pelos dias do mês.
 export function dailyAllowance(tags: Tag[], y: number, m: number): number {
-  return round2(dailyBudgetMonthly(tags) / daysInMonth(y, m))
+  return round2(dailyBudgetMonthly(tags, y, m) / daysInMonth(y, m))
 }
 
 export function movsByDate(state: AppState): Map<string, Mov[]> {
@@ -252,4 +256,123 @@ export function buildSeries(base: Omit<Mov, 'id' | 'seriesId' | 'seriesIndex' | 
     })
   }
   return out
+}
+
+// ---- Saldos por conta -----------------------------------------------------
+// Movimentações sem conta definida contam para a primeira conta ativa.
+export function accountBalancesAt(state: AppState, iso: string): Map<string, number> {
+  const active = state.accounts.filter((a) => !a.archived)
+  const map = new Map<string, number>()
+  for (const a of active) map.set(a.id, a.initialBalance)
+  const fallback = active[0]?.id
+  for (const mv of state.movs) {
+    if (mv.date > iso) continue
+    const effect = accountEffect(mv)
+    if (effect === 0) continue
+    const target = mv.accountId && map.has(mv.accountId) ? mv.accountId : fallback
+    if (target) map.set(target, (map.get(target) || 0) + effect)
+  }
+  for (const [k, v] of map) map.set(k, round2(v))
+  return map
+}
+
+// ---- Séries para o dashboard ---------------------------------------------
+
+export interface MonthPoint {
+  y: number
+  m: number
+  entradas: number
+  custos: number // saídas + diários + cartão (sem previsões: só o realizado)
+}
+
+// Últimos N meses terminando em (y, m): entradas × custos realizados.
+export function monthlySeries(state: AppState, y: number, m: number, n: number): MonthPoint[] {
+  const out: MonthPoint[] = []
+  let ym = y * 12 + (m - 1) - (n - 1)
+  for (let i = 0; i < n; i++, ym++) {
+    const cy = Math.floor(ym / 12)
+    const cm = (ym % 12) + 1
+    const start = monthStart(cy, cm)
+    const end = monthEnd(cy, cm)
+    let entradas = 0
+    let custos = 0
+    for (const mv of state.movs) {
+      if (mv.date < start || mv.date > end) continue
+      if (mv.type === 'entrada') entradas += mv.amount
+      else if (mv.type === 'saida' || mv.type === 'diario' || mv.type === 'cartao') custos += mv.amount
+    }
+    out.push({ y: cy, m: cm, entradas: round2(entradas), custos: round2(custos) })
+  }
+  return out
+}
+
+export interface Slice {
+  id: string
+  label: string
+  color: string
+  value: number
+}
+
+// Gastos do mês (saída + diário + cartão) somados por tag; movimentações sem
+// tag entram em "sem tag".
+export function spentByTag(state: AppState, y: number, m: number): Slice[] {
+  const start = monthStart(y, m)
+  const end = monthEnd(y, m)
+  const sums = new Map<string, number>()
+  let untagged = 0
+  for (const mv of state.movs) {
+    if (mv.date < start || mv.date > end) continue
+    if (mv.type !== 'saida' && mv.type !== 'diario' && mv.type !== 'cartao') continue
+    if (mv.tagIds.length === 0) {
+      untagged += mv.amount
+    } else {
+      for (const id of mv.tagIds) sums.set(id, (sums.get(id) || 0) + mv.amount)
+    }
+  }
+  const out: Slice[] = []
+  for (const [id, value] of sums) {
+    const tag = state.tags.find((t) => t.id === id)
+    if (tag && value > 0) out.push({ id, label: tag.name, color: tag.color, value: round2(value) })
+  }
+  if (untagged > 0) out.push({ id: '', label: 'sem tag', color: '#c9c3b4', value: round2(untagged) })
+  return out.sort((a, b) => b.value - a.value)
+}
+
+// Gastos com cartão do mês somados por cartão.
+export function spentByCard(state: AppState, y: number, m: number): Slice[] {
+  const start = monthStart(y, m)
+  const end = monthEnd(y, m)
+  const sums = new Map<string, number>()
+  for (const mv of state.movs) {
+    if (mv.date < start || mv.date > end || mv.type !== 'cartao') continue
+    const key = mv.cardId || ''
+    sums.set(key, (sums.get(key) || 0) + mv.amount)
+  }
+  const out: Slice[] = []
+  for (const [id, value] of sums) {
+    const card = state.cards.find((c) => c.id === id)
+    out.push({ id, label: card?.name || 'sem cartão', color: card?.color || '#c9c3b4', value: round2(value) })
+  }
+  return out.sort((a, b) => b.value - a.value)
+}
+
+// Gastos que saíram da conta bancária (saída + diário) somados por conta.
+export function spentByAccount(state: AppState, y: number, m: number): Slice[] {
+  const start = monthStart(y, m)
+  const end = monthEnd(y, m)
+  const active = state.accounts.filter((a) => !a.archived)
+  const fallback = active[0]?.id || ''
+  const sums = new Map<string, number>()
+  for (const mv of state.movs) {
+    if (mv.date < start || mv.date > end) continue
+    if (mv.type !== 'saida' && mv.type !== 'diario') continue
+    const key = mv.accountId && active.some((a) => a.id === mv.accountId) ? mv.accountId : fallback
+    sums.set(key, (sums.get(key) || 0) + mv.amount)
+  }
+  const out: Slice[] = []
+  for (const [id, value] of sums) {
+    const acc = active.find((a) => a.id === id)
+    if (value > 0) out.push({ id, label: acc?.name || 'sem conta', color: acc?.color || '#c9c3b4', value: round2(value) })
+  }
+  return out.sort((a, b) => b.value - a.value)
 }

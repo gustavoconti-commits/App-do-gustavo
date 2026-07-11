@@ -28,6 +28,9 @@ export interface Tag {
   // de gasto diário do mês (total / dias do mês = diária).
   monthlyBudget?: number
   isDaily?: boolean
+  // A partir de que mês (YYYY-MM) este orçamento diário passa a valer.
+  // Vazio = desde sempre.
+  startMonth?: string
 }
 
 // Caixinha de investimento (objetivo)

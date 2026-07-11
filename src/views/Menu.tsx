@@ -4,11 +4,12 @@ import { useSession } from '../App'
 import { supabase } from '../cloud'
 import { Account, Card } from '../types'
 import { ACCOUNT_COLORS, ColorPicker, ConfirmDialog, Modal, MoneyInput } from '../components/ui'
-import { balanceAt } from '../engine'
+import { accountBalancesAt, balanceAt } from '../engine'
 import { todayISO } from '../dates'
 import { fmtBRL } from '../format'
+import type { Tab } from '../App'
 
-export function MenuView({ onToast }: { onToast: (msg: string) => void }) {
+export function MenuView({ onToast, onGoTab }: { onToast: (msg: string) => void; onGoTab: (t: Tab) => void }) {
   const { state, dispatch, sync, lastSyncAt } = useStore()
   const session = useSession()
   const [editAccount, setEditAccount] = useState<Account | null>(null)
@@ -21,6 +22,7 @@ export function MenuView({ onToast }: { onToast: (msg: string) => void }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const today = todayISO()
   const saldoHoje = balanceAt(state, today)
+  const accBalances = accountBalancesAt(state, today)
 
   const meta = (session?.user.user_metadata ?? {}) as { full_name?: string; phone?: string }
 
@@ -74,6 +76,18 @@ export function MenuView({ onToast }: { onToast: (msg: string) => void }) {
       </header>
 
       <div className="menu">
+        <div className="menu-shortcuts">
+          <button className="shortcut" onClick={() => onGoTab('invest')}>
+            <span className="nav-ico">⬆</span> investir
+          </button>
+          <button className="shortcut" onClick={() => onGoTab('diario')}>
+            <span className="nav-ico">◎</span> diário
+          </button>
+          <button className="shortcut" onClick={() => onGoTab('tags')}>
+            <span className="nav-ico">⬚</span> tags
+          </button>
+        </div>
+
         <h4 className="section-title">minha conta</h4>
         {session ? (
           <>
@@ -141,8 +155,13 @@ export function MenuView({ onToast }: { onToast: (msg: string) => void }) {
             .map((a) => (
               <button key={a.id} className="tot-row clickable" onClick={() => setEditAccount(a)}>
                 <span className="tag-swatch big" style={{ background: a.color }} />
-                <span className="grow left">{a.name}</span>
-                <span className="muted small">inicial {fmtBRL(a.initialBalance)}</span>
+                <span className="grow left">
+                  {a.name}
+                  <span className="muted small block-sub">inicial {fmtBRL(a.initialBalance)}</span>
+                </span>
+                <strong className={(accBalances.get(a.id) ?? 0) < 0 ? 'neg' : ''}>
+                  {fmtBRL(accBalances.get(a.id) ?? 0)}
+                </strong>
               </button>
             ))}
           <button className="tot-row clickable add" onClick={() => setNewAccount(true)}>

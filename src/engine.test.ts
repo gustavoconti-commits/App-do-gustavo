@@ -53,6 +53,15 @@ describe('dailyAllowance', () => {
     // 1500 / 30 dias de junho = 50
     expect(dailyAllowance(s.tags, 2026, 6)).toBe(50)
   })
+
+  it('respeita o mês de início da categoria de diário', () => {
+    const tags = [
+      { id: 't1', name: 'A', color: '#eee', isDaily: true, monthlyBudget: 310 },
+      { id: 't2', name: 'B', color: '#eee', isDaily: true, monthlyBudget: 620, startMonth: '2026-08' },
+    ]
+    expect(dailyAllowance(tags, 2026, 7)).toBe(10) // só A vale em julho
+    expect(dailyAllowance(tags, 2026, 8)).toBe(30) // (310+620)/31 em agosto
+  })
 })
 
 describe('balanceAt / monthRows', () => {

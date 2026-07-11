@@ -44,7 +44,16 @@ export function DayView({ date, onChangeDate, onBack, onToast }: Props) {
         <div className="month-nav">
           <button className="nav-arrow" onClick={() => onChangeDate(addDays(date, -1))} aria-label="dia anterior">‹</button>
           <span className="month-label static">
-            {formatDateShortBR(date)} <small className="muted">{WEEKDAY_SHORT[weekdayOf(date)]}</small>
+            {formatDateShortBR(date)}{' '}
+            <small className="muted">
+              {date === today
+                ? 'hoje'
+                : date === addDays(today, -1)
+                  ? 'ontem'
+                  : date === addDays(today, 1)
+                    ? 'amanhã'
+                    : WEEKDAY_SHORT[weekdayOf(date)]}
+            </small>
           </span>
           <button className="nav-arrow" onClick={() => onChangeDate(addDays(date, 1))} aria-label="dia seguinte">›</button>
         </div>

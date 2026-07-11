@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react'
 import { mkId, useStore } from '../store'
 import { Tag } from '../types'
-import { dailyBudgetMonthly, tagSpentInMonth } from '../engine'
-import { ColorPicker, Modal, MoneyInput, TAG_COLORS } from '../components/ui'
-import { daysInMonth, formatMonthYear, parseISO, todayISO } from '../dates'
+import { tagSpentInMonth } from '../engine'
+import { ColorPicker, Modal, TAG_COLORS } from '../components/ui'
+import { formatMonthYear, parseISO, todayISO } from '../dates'
 import { fmtBRL } from '../format'
 
 interface Props {
@@ -13,6 +13,8 @@ interface Props {
   onToast: (msg: string) => void
 }
 
+// Tags livres: categorias para marcar saídas, gastos com cartão e o que mais
+// quiser — sem vínculo com o teto de gasto diário.
 export function TagsView({ year, month, onNav, onToast }: Props) {
   const { state, dispatch } = useStore()
   const [filter, setFilter] = useState('')
@@ -23,13 +25,11 @@ export function TagsView({ year, month, onNav, onToast }: Props) {
   const tags = useMemo(
     () =>
       state.tags
+        .filter((tg) => !tg.isDaily)
         .filter((tg) => tg.name.toLowerCase().includes(filter.toLowerCase()))
-        .sort((a, b) => Number(b.isDaily || false) - Number(a.isDaily || false) || a.name.localeCompare(b.name)),
+        .sort((a, b) => a.name.localeCompare(b.name)),
     [state.tags, filter]
   )
-
-  const budget = dailyBudgetMonthly(state.tags)
-  const allowance = budget / daysInMonth(year, month)
 
   function prev() {
     if (month === 1) onNav(year - 1, 12)
@@ -59,40 +59,25 @@ export function TagsView({ year, month, onNav, onToast }: Props) {
         <input className="search" placeholder="🔍 filtrar tags" value={filter} onChange={(e) => setFilter(e.target.value)} />
       </div>
 
-      {budget > 0 && (
-        <div className="day-summary">
-          <div className="ds-cell">
-            <span className="muted small">orçamento diário do mês</span>
-            <strong>{fmtBRL(budget)}</strong>
-          </div>
-          <div className="ds-cell">
-            <span className="muted small">diária ({daysInMonth(year, month)} dias)</span>
-            <strong>{fmtBRL(allowance)}</strong>
-          </div>
-        </div>
-      )}
-
       <div className="mov-list">
         {tags.length === 0 && (
           <div className="empty-state" onClick={() => setCreating(true)}>
             <div className="empty-plus">＋</div>
-            <p className="muted">sem tags. toque no + para criar.</p>
+            <p className="muted">
+              crie tags livres para categorizar suas saídas e gastos com cartão (mercado, assinatura, pet…). o valor ao
+              lado mostra o gasto do mês em cada tag.
+            </p>
           </div>
         )}
         {tags.map((tg) => {
           const spent = tagSpentInMonth(state, tg.id, year, month)
-          const over = tg.monthlyBudget ? spent > tg.monthlyBudget : false
           return (
             <div key={tg.id} className="mov-row" onClick={() => setEditing(tg)}>
               <span className="tag-swatch big" style={{ background: tg.color }} />
               <div className="mov-info">
-                <div className="mov-desc">
-                  {tg.isDaily ? 'DIÁRIO | ' : ''}
-                  {tg.name}
-                  {tg.monthlyBudget ? <span className="muted"> ({fmtBRL(tg.monthlyBudget)})</span> : null}
-                </div>
+                <div className="mov-desc">{tg.name}</div>
               </div>
-              <span className={`mov-amt${over ? ' neg' : ''}`}>{fmtBRL(spent)}</span>
+              <span className="mov-amt">{fmtBRL(spent)}</span>
             </div>
           )
         })}
@@ -135,9 +120,7 @@ function TagForm({
   onDelete?: () => void
 }) {
   const [name, setName] = useState(tag?.name ?? '')
-  const [color, setColor] = useState(tag?.color ?? TAG_COLORS[0])
-  const [isDaily, setIsDaily] = useState(tag?.isDaily ?? false)
-  const [budget, setBudget] = useState(tag?.monthlyBudget ?? 0)
+  const [color, setColor] = useState(tag?.color ?? TAG_COLORS[4])
   return (
     <Modal onClose={onClose}>
       <div className="addmov">
@@ -146,7 +129,7 @@ function TagForm({
           <span className="row-ico">🏷️</span>
           <input
             className="grow"
-            placeholder="nome da tag (ex: ALIMENTAÇÃO)"
+            placeholder="nome (ex: MERCADO)"
             value={name}
             onChange={(e) => setName(e.target.value.toUpperCase())}
             autoFocus
@@ -155,28 +138,12 @@ function TagForm({
         <div className="form-row">
           <ColorPicker colors={TAG_COLORS} value={color} onChange={setColor} />
         </div>
-        <label className="form-row">
-          <span className="grow bold">tag de gasto diário</span>
-          <input type="checkbox" checked={isDaily} onChange={(e) => setIsDaily(e.target.checked)} />
-        </label>
-        {isDaily && (
-          <label className="form-row">
-            <span className="grow bold">orçamento mensal</span>
-            <MoneyInput value={budget} onChange={setBudget} />
-          </label>
-        )}
         <button
           className="btn block submit"
-          style={{ background: '#111' }}
+          style={{ background: '#0B3A2A' }}
           disabled={!name.trim()}
           onClick={() => {
-            onSave({
-              id: tag?.id ?? mkId(),
-              name: name.trim(),
-              color,
-              isDaily,
-              monthlyBudget: isDaily && budget > 0 ? budget : undefined,
-            })
+            onSave({ id: tag?.id ?? mkId(), name: name.trim(), color, isDaily: false })
             onClose()
           }}
         >

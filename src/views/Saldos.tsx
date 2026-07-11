@@ -6,18 +6,24 @@ import { TypeIcon } from '../components/ui'
 import { formatMonthYear, MONTH_NAMES_SHORT, parseISO, todayISO, weekdayOf, WEEKDAY_SHORT } from '../dates'
 import { fmtBRL } from '../format'
 
+// Filtro do fluxo: '' (todas), 'type:<tipo>' ou 'tag:<id>'
+export type FluxFilter = string
+
 interface Props {
   year: number
   month: number
+  filter: FluxFilter
+  onFilter: (f: FluxFilter) => void
   onNav: (y: number, m: number) => void
   onOpenDay: (iso: string) => void
 }
 
-export function SaldosView({ year, month, onNav, onOpenDay }: Props) {
+export function SaldosView({ year, month, filter, onFilter, onNav, onOpenDay }: Props) {
   const { state } = useStore()
   const today = todayISO()
-  const [tagFilter, setTagFilter] = useState<string>('')
   const [yearMode, setYearMode] = useState(false)
+  const typeFilter = filter.startsWith('type:') ? (filter.slice(5) as MovType) : null
+  const tagFilter = filter.startsWith('tag:') ? filter.slice(4) : null
   const rows = useMemo(() => monthRows(state, year, month, today), [state, year, month, today])
   const saldoHoje = useMemo(() => balanceAt(state, today), [state, today])
   const t = parseISO(today)
@@ -79,14 +85,37 @@ export function SaldosView({ year, month, onNav, onOpenDay }: Props) {
         <>
           <div className="subbar">
             <span className="muted">dia</span>
-            <select className="tag-filter" value={tagFilter} onChange={(e) => setTagFilter(e.target.value)}>
+            <select className="tag-filter" value={filter} onChange={(e) => onFilter(e.target.value)}>
               <option value="">✻ todas</option>
-              {state.tags.map((tg) => (
-                <option key={tg.id} value={tg.id}>
-                  {tg.isDaily ? 'DIÁRIO | ' : ''}
-                  {tg.name}
-                </option>
-              ))}
+              <optgroup label="por tipo">
+                {MOV_TYPES.map((tp) => (
+                  <option key={tp} value={`type:${tp}`}>
+                    {TYPE_META[tp].label}
+                  </option>
+                ))}
+              </optgroup>
+              {state.tags.filter((tg) => tg.isDaily).length > 0 && (
+                <optgroup label="diário">
+                  {state.tags
+                    .filter((tg) => tg.isDaily)
+                    .map((tg) => (
+                      <option key={tg.id} value={`tag:${tg.id}`}>
+                        {tg.name}
+                      </option>
+                    ))}
+                </optgroup>
+              )}
+              {state.tags.filter((tg) => !tg.isDaily).length > 0 && (
+                <optgroup label="tags">
+                  {state.tags
+                    .filter((tg) => !tg.isDaily)
+                    .map((tg) => (
+                      <option key={tg.id} value={`tag:${tg.id}`}>
+                        {tg.name}
+                      </option>
+                    ))}
+                </optgroup>
+              )}
             </select>
             <span className="muted right">saldos</span>
           </div>
@@ -95,10 +124,13 @@ export function SaldosView({ year, month, onNav, onOpenDay }: Props) {
             {rows.map((r) => {
               const isToday = r.date === today
               const isPast = r.date < today
-              const filtered = tagFilter ? r.movs.filter((m) => m.tagIds.includes(tagFilter)) : r.movs
+              const filtered = r.movs.filter(
+                (m) => (!tagFilter || m.tagIds.includes(tagFilter)) && (!typeFilter || m.type === typeFilter)
+              )
               const byType: Partial<Record<MovType, number>> = {}
               for (const m of filtered) byType[m.type] = (byType[m.type] || 0) + m.amount
               const lines = MOV_TYPES.filter((tp) => (byType[tp] || 0) > 0)
+              const showForecast = r.forecastDiario > 0 && !tagFilter && (!typeFilter || typeFilter === 'diario')
               return (
                 <div
                   key={r.date}
@@ -111,7 +143,7 @@ export function SaldosView({ year, month, onNav, onOpenDay }: Props) {
                     <div className="dwk">{WEEKDAY_SHORT[weekdayOf(r.date)]}</div>
                   </div>
                   <div className="flux-lines">
-                    {lines.length === 0 && r.forecastDiario === 0 && (
+                    {lines.length === 0 && !showForecast && (
                       <div className="flux-line empty">
                         <span className="muted small">—</span>
                       </div>
@@ -124,7 +156,7 @@ export function SaldosView({ year, month, onNav, onOpenDay }: Props) {
                         </span>
                       </div>
                     ))}
-                    {r.forecastDiario > 0 && !tagFilter && (
+                    {showForecast && (
                       <div className="flux-line forecast">
                         <TypeIcon type="diario" size={18} dashed />
                         <span className="flux-amt muted">{fmtBRL(r.forecastDiario)}</span>

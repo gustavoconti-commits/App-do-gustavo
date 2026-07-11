@@ -62,7 +62,6 @@ export interface Mov {
 
 export interface Settings {
   savingsGoalPct: number // meta de % economizado sobre entradas
-  pin?: { salt: string; hash: string } // senha de acesso (hash local)
 }
 
 export interface AppState {

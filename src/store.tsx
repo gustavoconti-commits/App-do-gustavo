@@ -1,7 +1,11 @@
-import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { Account, AppState, Box, Card, Mov, Settings, Tag } from './types'
+import { Envelope, fetchRemote, pushRemote, SyncStatus } from './cloud'
 
-const STORAGE_KEY = 'grana-gustavo-v1'
+// Dados antigos da versão sem login (guardados só no aparelho)
+const LEGACY_KEY = 'grana-gustavo-v1'
+
+const storageKeyFor = (userId: string) => `grana:v2:${userId}`
 
 export function mkId(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
@@ -30,15 +34,39 @@ function migrate(state: AppState): AppState {
   return { ...state, movs, version: 2 }
 }
 
-function load(): AppState {
+function sanitize(parsed: AppState): AppState {
+  return migrate({ ...defaultState(), ...parsed, settings: { ...defaultState().settings, ...parsed.settings } })
+}
+
+function readEnvelope(key: string): Envelope | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return defaultState()
-    const parsed = JSON.parse(raw) as AppState
-    if (!parsed || !Array.isArray(parsed.movs)) return defaultState()
-    return migrate({ ...defaultState(), ...parsed, settings: { ...defaultState().settings, ...parsed.settings } })
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || !parsed.state || !Array.isArray(parsed.state.movs)) return null
+    return { state: sanitize(parsed.state), savedAt: Number(parsed.savedAt) || 0 }
   } catch {
-    return defaultState()
+    return null
+  }
+}
+
+function readLegacy(): AppState | null {
+  try {
+    const raw = localStorage.getItem(LEGACY_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as AppState
+    if (!parsed || !Array.isArray(parsed.movs)) return null
+    return sanitize(parsed)
+  } catch {
+    return null
+  }
+}
+
+function writeEnvelope(key: string, env: Envelope) {
+  try {
+    localStorage.setItem(key, JSON.stringify(env))
+  } catch {
+    // storage cheio/indisponível: seguimos em memória e na nuvem
   }
 }
 
@@ -148,18 +176,142 @@ function reducer(state: AppState, action: Action): AppState {
   }
 }
 
-const StoreCtx = createContext<{ state: AppState; dispatch: React.Dispatch<Action> } | null>(null)
+interface StoreCtxValue {
+  state: AppState
+  dispatch: React.Dispatch<Action>
+  sync: SyncStatus
+  lastSyncAt: number | null
+}
 
-export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, load)
-  useEffect(() => {
+const StoreCtx = createContext<StoreCtxValue | null>(null)
+
+const PUSH_DEBOUNCE_MS = 1500
+const RETRY_INTERVAL_MS = 30000
+
+export function StoreProvider({ userId, children }: { userId: string; children: React.ReactNode }) {
+  const storageKey = storageKeyFor(userId)
+  const [state, dispatch] = useReducer(
+    reducer,
+    storageKey,
+    (key) => readEnvelope(key)?.state ?? defaultState()
+  )
+  const [sync, setSync] = useState<SyncStatus>('salvando')
+  const [lastSyncAt, setLastSyncAt] = useState<number | null>(null)
+
+  const stateRef = useRef(state)
+  stateRef.current = state
+  const savedAtRef = useRef(readEnvelope(storageKey)?.savedAt ?? 0) // versão local atual
+  const syncedAtRef = useRef(0) // última versão confirmada na nuvem
+  const pushTimer = useRef<number | undefined>(undefined)
+  const booted = useRef(false)
+
+  async function doPush() {
+    const env: Envelope = { state: stateRef.current, savedAt: savedAtRef.current }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      setSync('salvando')
+      await pushRemote(userId, env)
+      syncedAtRef.current = env.savedAt
+      setSync('sincronizado')
+      setLastSyncAt(Date.now())
     } catch {
-      // storage cheio/indisponível: seguimos em memória
+      setSync(typeof navigator !== 'undefined' && navigator.onLine === false ? 'offline' : 'erro')
     }
+  }
+
+  function schedulePush() {
+    window.clearTimeout(pushTimer.current)
+    pushTimer.current = window.setTimeout(doPush, PUSH_DEBOUNCE_MS)
+  }
+
+  // Carga inicial: compara nuvem × aparelho e fica com o mais novo.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const remote = await fetchRemote(userId)
+        if (cancelled) return
+        const local = readEnvelope(storageKey)
+        if (remote && remote.savedAt > (local?.savedAt ?? 0)) {
+          savedAtRef.current = remote.savedAt
+          syncedAtRef.current = remote.savedAt
+          writeEnvelope(storageKey, { state: sanitize(remote.state), savedAt: remote.savedAt })
+          dispatch({ type: 'importState', state: sanitize(remote.state) })
+          setSync('sincronizado')
+          setLastSyncAt(Date.now())
+          return
+        }
+        if (!remote && !local) {
+          // primeira vez desta conta: se houver dados da versão antiga
+          // (sem login) neste aparelho, eles passam a ser da conta.
+          const legacy = readLegacy()
+          if (legacy) {
+            savedAtRef.current = Date.now()
+            writeEnvelope(storageKey, { state: legacy, savedAt: savedAtRef.current })
+            dispatch({ type: 'importState', state: legacy })
+          }
+        }
+        // aparelho é a versão mais nova (ou a única): sobe para a nuvem
+        if (savedAtRef.current === 0) savedAtRef.current = Date.now()
+        await doPush()
+      } catch {
+        if (!cancelled) setSync(typeof navigator !== 'undefined' && navigator.onLine === false ? 'offline' : 'erro')
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
+
+  // Toda mudança de estado: grava no aparelho e agenda envio para a nuvem.
+  useEffect(() => {
+    if (!booted.current) {
+      booted.current = true
+      return
+    }
+    savedAtRef.current = Date.now()
+    writeEnvelope(storageKey, { state, savedAt: savedAtRef.current })
+    schedulePush()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
-  const value = useMemo(() => ({ state, dispatch }), [state])
+
+  // Reenvia pendências ao voltar a conexão e periodicamente; ao voltar o foco,
+  // busca se outro aparelho salvou uma versão mais nova.
+  useEffect(() => {
+    const flushIfDirty = () => {
+      if (syncedAtRef.current < savedAtRef.current) schedulePush()
+    }
+    const onFocus = async () => {
+      flushIfDirty()
+      try {
+        const remote = await fetchRemote(userId)
+        if (remote && remote.savedAt > savedAtRef.current) {
+          savedAtRef.current = remote.savedAt
+          syncedAtRef.current = remote.savedAt
+          writeEnvelope(storageKey, { state: sanitize(remote.state), savedAt: remote.savedAt })
+          dispatch({ type: 'importState', state: sanitize(remote.state) })
+          setSync('sincronizado')
+          setLastSyncAt(Date.now())
+        }
+      } catch {
+        // sem conexão: fica como está
+      }
+    }
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') onFocus()
+    }
+    window.addEventListener('online', flushIfDirty)
+    document.addEventListener('visibilitychange', onVisible)
+    const interval = window.setInterval(flushIfDirty, RETRY_INTERVAL_MS)
+    return () => {
+      window.removeEventListener('online', flushIfDirty)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.clearInterval(interval)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
+
+  const value = useMemo(() => ({ state, dispatch, sync, lastSyncAt }), [state, sync, lastSyncAt])
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>
 }
 
@@ -177,7 +329,7 @@ export function parseImport(raw: string): AppState | null {
   try {
     const parsed = JSON.parse(raw) as AppState
     if (!parsed || !Array.isArray(parsed.movs) || !Array.isArray(parsed.accounts)) return null
-    return migrate({ ...defaultState(), ...parsed })
+    return sanitize(parsed)
   } catch {
     return null
   }

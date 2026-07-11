@@ -18,12 +18,19 @@ Funciona como **PWA**: abre no navegador do computador e do celular, e pode ser 
 - **Totais do mês** — performance (entradas − todas as saídas − previsões), % economizado com meta, custo de vida, diário médio vs. diária ideal, e saldo projetado ao fim do mês.
 - **Investimentos com caixinhas** — crie objetivos (reserva de emergência, viagem…), com meta, prazo, barra de progresso e o quanto guardar por mês para chegar lá. Aportes saem da conta bancária e entram na caixinha; resgates fazem o caminho inverso.
 - **Contas bancárias** — cadastre suas contas com saldo inicial; o saldo do dia no app deve bater com a soma das contas no banco.
-- **Senha de acesso** — defina uma senha no menu; o app bloqueia ao abrir (hash local SHA-256, nada sai do aparelho).
-- **Backup** — exporte/importe um arquivo JSON para transferir os dados entre aparelhos ou guardar por segurança.
+- **Login com conta** — cadastro com nome completo, telefone, e-mail e senha (com confirmação por e-mail e recuperação de senha). Cada usuário só acessa os próprios dados.
+- **Sincronização na nuvem** — os dados ficam na conta do usuário (Supabase, com Row Level Security). Lançou no celular, abriu no computador: está lá. Offline o app continua funcionando e sincroniza quando a conexão volta.
+- **Backup** — exporte/importe um arquivo JSON como segurança extra.
 
 ## Onde ficam os dados
 
-No `localStorage` do navegador do aparelho — privados e offline. Para usar no celular **e** no computador, use o backup (menu → exportar/importar) para levar os dados de um para o outro. Sincronização automática entre aparelhos exigiria um servidor; a base está pronta para evoluir para isso.
+Na nuvem (projeto Supabase, tabela `user_state` com regras de acesso por usuário — ver `supabase/schema.sql`) e em cache no aparelho para uso offline. Na primeira entrada de uma conta num aparelho que tinha dados da versão antiga (sem login), esses dados são adotados pela conta automaticamente.
+
+### Configuração do Supabase (uma vez)
+
+1. Rodar `supabase/schema.sql` no painel: SQL Editor → New query → colar → Run.
+2. Authentication → URL Configuration → **Site URL** = `https://gustavoconti-commits.github.io/App-do-gustavo/` (e adicionar a mesma URL em Redirect URLs) — é para onde apontam os links de confirmação de e-mail e recuperação de senha.
+3. As chaves públicas do projeto ficam em `src/config.ts`.
 
 ## Desenvolvimento
 

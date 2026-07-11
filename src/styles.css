@@ -422,3 +422,18 @@ select { appearance: auto; }
   25% { transform: translateX(-7px); }
   75% { transform: translateX(7px); }
 }
+
+/* ---- autenticação ---- */
+.auth-tabs {
+  display: flex; gap: 6px; width: 100%; margin-top: 16px;
+  background: #ece5d4; border-radius: 999px; padding: 4px;
+}
+.auth-tab {
+  flex: 1; border-radius: 999px; padding: 9px; font-weight: 700; color: var(--muted);
+  font-family: var(--font-title);
+}
+.auth-tab.sel { background: var(--patrimonio); color: var(--pergaminho); }
+.auth-link {
+  color: var(--sacre); font-weight: 600; font-size: 13px; text-decoration: underline; margin-top: 12px;
+}
+.lock-notice { color: var(--sacre); font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }

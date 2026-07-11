@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { StoreProvider, useStore } from './store'
-import { isUnlocked, markUnlocked } from './security'
-import { LockScreen } from './views/Lock'
-import { ApiceSymbol, Wordmark } from './components/Brand'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
+import { supabase } from './cloud'
+import { StoreProvider } from './store'
+import { AuthView, NewPasswordForm } from './views/Auth'
 import { SaldosView } from './views/Saldos'
 import { DayView } from './views/Day'
 import { TotaisView } from './views/Totais'
@@ -11,6 +11,7 @@ import { InvestView } from './views/Invest'
 import { MenuView } from './views/Menu'
 import { AddMovModal } from './views/AddMov'
 import { Toast, useToast } from './components/ui'
+import { ApiceSymbol, Wordmark } from './components/Brand'
 import { parseISO, todayISO } from './dates'
 
 type Tab = 'saldos' | 'totais' | 'invest' | 'tags' | 'menu'
@@ -23,17 +24,54 @@ const NAV: { tab: Tab; label: string; icon: string }[] = [
   { tab: 'menu', label: 'menu', icon: '☰' },
 ]
 
+const SessionCtx = createContext<Session | null>(null)
+export function useSession() {
+  return useContext(SessionCtx)
+}
+
 export default function App() {
+  const [session, setSession] = useState<Session | null>(null)
+  const [ready, setReady] = useState(false)
+  const [recovery, setRecovery] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+      setReady(true)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      setSession(s)
+      setReady(true)
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true)
+    })
+    return () => sub.subscription.unsubscribe()
+  }, [])
+
+  if (!ready) {
+    return (
+      <div className="lock-screen">
+        <div className="lock-card">
+          <ApiceSymbol width={64} />
+          <Wordmark size={28} />
+          <p className="lock-sub">carregando…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!session) return <AuthView />
+  if (recovery) return <NewPasswordForm onDone={() => setRecovery(false)} />
+
   return (
-    <StoreProvider>
-      <Shell />
-    </StoreProvider>
+    <SessionCtx.Provider value={session}>
+      <StoreProvider userId={session.user.id}>
+        <Shell />
+      </StoreProvider>
+    </SessionCtx.Provider>
   )
 }
 
 function Shell() {
-  const { state } = useStore()
-  const [locked, setLocked] = useState(() => !!state.settings.pin && !isUnlocked())
   const t = parseISO(todayISO())
   const [tab, setTab] = useState<Tab>('saldos')
   const [year, setYear] = useState(t.y)
@@ -45,18 +83,6 @@ function Shell() {
   const nav = (y: number, m: number) => {
     setYear(y)
     setMonth(m)
-  }
-
-  if (locked && state.settings.pin) {
-    return (
-      <LockScreen
-        pin={state.settings.pin}
-        onUnlock={() => {
-          markUnlocked()
-          setLocked(false)
-        }}
-      />
-    )
   }
 
   return (

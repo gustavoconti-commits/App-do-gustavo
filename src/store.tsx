@@ -5,6 +5,10 @@ import { Envelope, fetchRemote, pushRemote, SyncStatus } from './cloud'
 // Dados antigos da versão sem login (guardados só no aparelho)
 const LEGACY_KEY = 'grana-gustavo-v1'
 
+// Usuário do modo demonstração (sem conta): dados só neste aparelho
+export const DEMO_USER_ID = 'local-demo'
+export const DEMO_FLAG_KEY = 'grana-demo'
+
 const storageKeyFor = (userId: string) => `grana:v2:${userId}`
 
 export function mkId(): string {
@@ -188,14 +192,14 @@ const StoreCtx = createContext<StoreCtxValue | null>(null)
 const PUSH_DEBOUNCE_MS = 1500
 const RETRY_INTERVAL_MS = 30000
 
-export function StoreProvider({ userId, children }: { userId: string; children: React.ReactNode }) {
+export function StoreProvider({ userId, local = false, children }: { userId: string; local?: boolean; children: React.ReactNode }) {
   const storageKey = storageKeyFor(userId)
   const [state, dispatch] = useReducer(
     reducer,
     storageKey,
     (key) => readEnvelope(key)?.state ?? defaultState()
   )
-  const [sync, setSync] = useState<SyncStatus>('salvando')
+  const [sync, setSync] = useState<SyncStatus>(local ? 'local' : 'salvando')
   const [lastSyncAt, setLastSyncAt] = useState<number | null>(null)
 
   const stateRef = useRef(state)
@@ -225,13 +229,14 @@ export function StoreProvider({ userId, children }: { userId: string; children: 
 
   // Carga inicial: compara nuvem × aparelho e fica com o mais novo.
   useEffect(() => {
+    if (local) return // modo demonstração: nada de nuvem
     let cancelled = false
     ;(async () => {
       try {
         const remote = await fetchRemote(userId)
         if (cancelled) return
-        const local = readEnvelope(storageKey)
-        if (remote && remote.savedAt > (local?.savedAt ?? 0)) {
+        const localEnv = readEnvelope(storageKey)
+        if (remote && remote.savedAt > (localEnv?.savedAt ?? 0)) {
           savedAtRef.current = remote.savedAt
           syncedAtRef.current = remote.savedAt
           writeEnvelope(storageKey, { state: sanitize(remote.state), savedAt: remote.savedAt })
@@ -240,14 +245,15 @@ export function StoreProvider({ userId, children }: { userId: string; children: 
           setLastSyncAt(Date.now())
           return
         }
-        if (!remote && !local) {
-          // primeira vez desta conta: se houver dados da versão antiga
-          // (sem login) neste aparelho, eles passam a ser da conta.
-          const legacy = readLegacy()
-          if (legacy) {
+        if (!remote && !localEnv) {
+          // primeira vez desta conta: se houver dados do modo demonstração
+          // ou da versão antiga (sem login) neste aparelho, eles passam a
+          // ser da conta.
+          const adopted = readEnvelope(storageKeyFor(DEMO_USER_ID))?.state ?? readLegacy()
+          if (adopted) {
             savedAtRef.current = Date.now()
-            writeEnvelope(storageKey, { state: legacy, savedAt: savedAtRef.current })
-            dispatch({ type: 'importState', state: legacy })
+            writeEnvelope(storageKey, { state: adopted, savedAt: savedAtRef.current })
+            dispatch({ type: 'importState', state: adopted })
           }
         }
         // aparelho é a versão mais nova (ou a única): sobe para a nuvem
@@ -271,13 +277,14 @@ export function StoreProvider({ userId, children }: { userId: string; children: 
     }
     savedAtRef.current = Date.now()
     writeEnvelope(storageKey, { state, savedAt: savedAtRef.current })
-    schedulePush()
+    if (!local) schedulePush()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   // Reenvia pendências ao voltar a conexão e periodicamente; ao voltar o foco,
   // busca se outro aparelho salvou uma versão mais nova.
   useEffect(() => {
+    if (local) return
     const flushIfDirty = () => {
       if (syncedAtRef.current < savedAtRef.current) schedulePush()
     }

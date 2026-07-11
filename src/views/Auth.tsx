@@ -17,7 +17,7 @@ function translateError(msg: string): string {
   return msg
 }
 
-export function AuthView() {
+export function AuthView({ onDemo }: { onDemo: () => void }) {
   const [mode, setMode] = useState<Mode>('login')
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
@@ -163,8 +163,13 @@ export function AuthView() {
           </button>
         )}
 
+        <button className="auth-link demo" onClick={onDemo}>
+          👀 só quero ver: entrar sem conta (modo demonstração)
+        </button>
+
         <p className="lock-hint">
-          seus dados ficam na sua conta, protegidos por senha — entre em qualquer aparelho e eles estarão lá.
+          seus dados ficam na sua conta, protegidos por senha — entre em qualquer aparelho e eles estarão lá. no modo
+          demonstração, os dados ficam só neste aparelho e passam para a sua conta quando você se cadastrar.
         </p>
       </div>
     </div>

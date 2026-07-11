@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './cloud'
-import { StoreProvider } from './store'
+import { DEMO_FLAG_KEY, DEMO_USER_ID, StoreProvider } from './store'
 import { AuthView, NewPasswordForm } from './views/Auth'
 import { SaldosView } from './views/Saldos'
 import { DayView } from './views/Day'
@@ -33,6 +33,13 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [ready, setReady] = useState(false)
   const [recovery, setRecovery] = useState(false)
+  const [demo, setDemo] = useState(() => {
+    try {
+      return localStorage.getItem(DEMO_FLAG_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -59,7 +66,30 @@ export default function App() {
     )
   }
 
-  if (!session) return <AuthView />
+  if (!session && demo) {
+    // modo demonstração: app completo, dados só neste aparelho
+    return (
+      <SessionCtx.Provider value={null}>
+        <StoreProvider userId={DEMO_USER_ID} local>
+          <Shell />
+        </StoreProvider>
+      </SessionCtx.Provider>
+    )
+  }
+
+  if (!session)
+    return (
+      <AuthView
+        onDemo={() => {
+          try {
+            localStorage.setItem(DEMO_FLAG_KEY, '1')
+          } catch {
+            // segue em memória
+          }
+          setDemo(true)
+        }}
+      />
+    )
   if (recovery) return <NewPasswordForm onDone={() => setRecovery(false)} />
 
   return (

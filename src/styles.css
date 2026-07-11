@@ -437,3 +437,4 @@ select { appearance: auto; }
   color: var(--sacre); font-weight: 600; font-size: 13px; text-decoration: underline; margin-top: 12px;
 }
 .lock-notice { color: var(--sacre); font-size: 13px; font-weight: 600; margin-top: 10px; line-height: 1.5; }
+.auth-link.demo { margin-top: 16px; color: var(--patrimonio); font-size: 14px; }

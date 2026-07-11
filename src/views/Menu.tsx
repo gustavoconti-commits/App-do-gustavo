@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { exportJSON, mkId, parseImport, useStore } from '../store'
+import { DEMO_FLAG_KEY, exportJSON, mkId, parseImport, useStore } from '../store'
 import { useSession } from '../App'
 import { supabase } from '../cloud'
 import { Account, Card } from '../types'
@@ -53,7 +53,9 @@ export function MenuView({ onToast }: { onToast: (msg: string) => void }) {
   }
 
   const syncLabel =
-    sync === 'sincronizado'
+    sync === 'local'
+      ? 'modo demonstração — dados só neste aparelho'
+      : sync === 'sincronizado'
       ? `✓ sincronizado com a nuvem${lastSyncAt ? ` (${new Date(lastSyncAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })})` : ''}`
       : sync === 'salvando'
         ? '… salvando na nuvem'
@@ -73,34 +75,60 @@ export function MenuView({ onToast }: { onToast: (msg: string) => void }) {
 
       <div className="menu">
         <h4 className="section-title">minha conta</h4>
-        <div className="tot-list">
-          <div className="tot-row">
-            <span className="row-ico">👤</span>
-            <span className="grow">{meta.full_name || 'sem nome cadastrado'}</span>
-          </div>
-          <div className="tot-row">
-            <span className="row-ico">✉️</span>
-            <span className="grow">{session?.user.email}</span>
-          </div>
-          {meta.phone && (
-            <div className="tot-row">
-              <span className="row-ico">📱</span>
-              <span className="grow">{meta.phone}</span>
+        {session ? (
+          <>
+            <div className="tot-list">
+              <div className="tot-row">
+                <span className="row-ico">👤</span>
+                <span className="grow">{meta.full_name || 'sem nome cadastrado'}</span>
+              </div>
+              <div className="tot-row">
+                <span className="row-ico">✉️</span>
+                <span className="grow">{session.user.email}</span>
+              </div>
+              {meta.phone && (
+                <div className="tot-row">
+                  <span className="row-ico">📱</span>
+                  <span className="grow">{meta.phone}</span>
+                </div>
+              )}
+              <div className="tot-row">
+                <span className="row-ico">☁️</span>
+                <span className="grow small">{syncLabel}</span>
+              </div>
             </div>
-          )}
-          <div className="tot-row">
-            <span className="row-ico">☁️</span>
-            <span className="grow small">{syncLabel}</span>
-          </div>
-        </div>
-        <div className="menu-actions" style={{ marginTop: 10 }}>
-          <button className="btn" onClick={() => setChangingPassword(true)}>
-            🔒 alterar senha
-          </button>
-          <button className="btn danger" onClick={() => setConfirmLogout(true)}>
-            sair da conta
-          </button>
-        </div>
+            <div className="menu-actions" style={{ marginTop: 10 }}>
+              <button className="btn" onClick={() => setChangingPassword(true)}>
+                🔒 alterar senha
+              </button>
+              <button className="btn danger" onClick={() => setConfirmLogout(true)}>
+                sair da conta
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="hint">
+              você está no <strong>modo demonstração</strong>: tudo funciona, mas os dados ficam só neste aparelho.
+              crie sua conta para guardá-los na nuvem e acessar de qualquer lugar — o que você já lançou vai junto.
+            </p>
+            <div className="menu-actions">
+              <button
+                className="btn gold"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem(DEMO_FLAG_KEY)
+                  } catch {
+                    // segue
+                  }
+                  window.location.reload()
+                }}
+              >
+                criar conta / entrar
+              </button>
+            </div>
+          </>
+        )}
 
         <h4 className="section-title">contas bancárias</h4>
         <p className="hint">

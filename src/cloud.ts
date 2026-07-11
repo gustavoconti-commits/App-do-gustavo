@@ -42,4 +42,4 @@ export async function pushRemote(userId: string, env: Envelope): Promise<void> {
   if (error) throw error
 }
 
-export type SyncStatus = 'sincronizado' | 'salvando' | 'offline' | 'erro'
+export type SyncStatus = 'sincronizado' | 'salvando' | 'offline' | 'erro' | 'local'

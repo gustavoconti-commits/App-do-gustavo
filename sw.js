@@ -1,5 +1,7 @@
-// Service worker: cache-first para o app shell, permitindo uso offline.
-const CACHE = 'grana-v1'
+// Service worker: cache do app shell para uso offline.
+// Só cacheia arquivos do próprio site — as chamadas ao servidor de dados
+// (Supabase) nunca passam pelo cache.
+const CACHE = 'grana-v2'
 
 self.addEventListener('install', (e) => {
   self.skipWaiting()
@@ -15,6 +17,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request
   if (req.method !== 'GET') return
+  if (new URL(req.url).origin !== self.location.origin) return
   e.respondWith(
     fetch(req)
       .then((res) => {

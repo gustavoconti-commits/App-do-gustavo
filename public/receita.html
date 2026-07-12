@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Receita — Assessor de Investimentos</title>
+<style>
+  :root{
+    --azul:#1e5aa8; --azul-claro:#e8f0fb; --azul-escuro:#143d73;
+    --amarelo:#b45309; --amarelo-claro:#fef3c7; --amarelo-borda:#f59e0b;
+    --verde:#15803d; --verde-claro:#dcfce7;
+    --vermelho:#b91c1c; --vermelho-claro:#fee2e2;
+    --cinza:#64748b; --fundo:#f1f5f9; --card:#ffffff; --borda:#e2e8f0;
+    --texto:#0f172a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--fundo);color:var(--texto);padding:20px;font-size:14px;max-width:1500px;margin:0 auto}
+  h1{font-size:22px;margin-bottom:4px}
+  .sub{color:var(--cinza);margin-bottom:18px;font-size:13px}
+
+  /* Barra superior */
+  .topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+  .topbar label{font-weight:600;font-size:13px}
+  .topbar input[type=month]{padding:8px 10px;border:1px solid var(--borda);border-radius:8px;font-size:14px;background:#fff}
+  .btn{border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:filter .15s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn-azul{background:var(--azul);color:#fff}
+  .btn-amarelo{background:var(--amarelo-borda);color:#3b2300}
+  .btn-cinza{background:#e2e8f0;color:#334155}
+  .btn-sm{padding:5px 10px;font-size:12px}
+  .spacer{flex:1}
+
+  /* Dashboard */
+  .dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px}
+  .card{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(15,23,42,.08);border-top:5px solid var(--cinza)}
+  .card .rotulo{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--cinza);margin-bottom:6px}
+  .card .valor{font-size:30px;font-weight:800;line-height:1.1}
+  .card .extra{font-size:12px;color:var(--cinza);margin-top:6px}
+  .card.c-receita{border-top-color:var(--azul)} .card.c-receita .valor{color:var(--azul-escuro)}
+  .card.c-ir{border-top-color:var(--vermelho)} .card.c-ir .valor{color:var(--vermelho)}
+  .card.c-liquido{border-top-color:var(--verde)} .card.c-liquido .valor{color:var(--verde)}
+  .card.c-proj{border-top-color:var(--amarelo-borda);background:linear-gradient(180deg,#fffbeb,#fff)} .card.c-proj .valor{color:var(--amarelo)}
+
+  /* Seções / tabelas */
+  .duas{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+  @media(max-width:1200px){.duas{grid-template-columns:1fr}}
+  .painel{background:var(--card);border-radius:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);overflow:hidden}
+  .painel-cab{display:flex;align-items:center;gap:10px;padding:14px 16px;font-weight:700;font-size:15px}
+  .painel-azul .painel-cab{background:var(--azul);color:#fff}
+  .painel-amarelo .painel-cab{background:var(--amarelo-claro);color:var(--amarelo);border-bottom:2px solid var(--amarelo-borda)}
+  .selo{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+  .selo-proj{background:var(--amarelo-borda);color:#3b2300}
+  .selo-efet{background:#ffffff33;color:#fff}
+  .painel-corpo{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:900px}
+  th{background:#f8fafc;text-align:left;padding:8px 8px;font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--cinza);border-bottom:2px solid var(--borda);white-space:nowrap}
+  td{padding:7px 8px;border-bottom:1px solid var(--borda);white-space:nowrap}
+  tr:hover td{background:#f8fafc}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  th.num{text-align:right}
+  td.calc{color:var(--cinza);background:#fafafa}
+  td.destaque{font-weight:700;color:var(--verde)}
+  td.editable{cursor:text}
+  td.editable:hover{outline:2px dashed #94a3b8;outline-offset:-2px}
+  td.editable:focus{outline:2px solid var(--azul);outline-offset:-2px;background:#fff}
+  .vazio{padding:24px;text-align:center;color:var(--cinza);font-style:italic}
+  .acao{cursor:pointer;font-size:15px;padding:2px 4px;border-radius:6px;background:none;border:none}
+  .acao:hover{background:#e2e8f0}
+  .badge-parc{display:inline-block;font-size:10px;font-weight:700;background:var(--azul-claro);color:var(--azul);border-radius:10px;padding:1px 7px;margin-left:5px}
+  .aviso-proj{padding:8px 16px;background:var(--amarelo-claro);color:var(--amarelo);font-size:12px;font-weight:600;border-bottom:1px solid var(--amarelo-borda)}
+  tfoot td{font-weight:700;background:#f8fafc;border-top:2px solid var(--borda)}
+
+  /* Navegação de mês */
+  .mes-nav{display:flex;align-items:center;gap:4px}
+  .mes-nav button{border:1px solid var(--borda);background:#fff;border-radius:8px;padding:8px 11px;cursor:pointer;font-size:13px;font-weight:700;color:var(--azul)}
+  .mes-nav button:hover{background:var(--azul-claro)}
+
+  /* Meta / termômetro */
+  .meta-box{background:var(--card);border-radius:14px;padding:16px 20px;box-shadow:0 1px 4px rgba(15,23,42,.08);margin-bottom:24px;border-left:6px solid var(--verde)}
+  .meta-topo{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:12px}
+  .meta-topo .titulo{font-weight:800;font-size:15px}
+  .meta-topo label{font-size:12px;color:var(--cinza);font-weight:700;display:flex;align-items:center;gap:6px}
+  .meta-topo input{padding:7px 10px;border:1px solid var(--borda);border-radius:8px;font-size:14px;width:130px;text-align:right}
+  .termometro{position:relative;height:36px;background:#e2e8f0;border-radius:20px;overflow:hidden}
+  .term-ef{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#16a34a,#22c55e);transition:width .5s}
+  .term-pj{position:absolute;top:0;bottom:0;left:0;width:0;background:repeating-linear-gradient(45deg,#fbbf24,#fbbf24 8px,#fcd34d 8px,#fcd34d 16px);opacity:.85;transition:all .5s}
+  .term-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#0f172a;text-shadow:0 1px 3px #ffffffcc}
+  .pace{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:stretch}
+  .pace-item{background:#f8fafc;border:1px solid var(--borda);border-radius:10px;padding:8px 14px;font-size:12px;color:var(--cinza)}
+  .pace-item b{display:block;font-size:16px;color:var(--texto);margin-top:2px;font-variant-numeric:tabular-nums}
+  .pace-chip{display:flex;align-items:center;font-weight:800;border-radius:10px;padding:8px 14px;font-size:13px}
+  .pace-atras{background:var(--vermelho-claro);color:var(--vermelho)}
+  .pace-frente{background:var(--verde-claro);color:var(--verde)}
+  .pace-neutro{background:#e2e8f0;color:#334155}
+
+  /* Visão anual */
+  .painel-ano{margin-bottom:24px}
+  .painel-ano .painel-cab{background:#334155;color:#fff}
+  .nav-ano{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .nav-ano button{border:none;background:#ffffff22;color:#fff;border-radius:6px;padding:4px 12px;font-size:15px;font-weight:700;cursor:pointer}
+  .nav-ano button:hover{background:#ffffff44}
+  .nav-ano .ano-atual{font-size:17px;font-weight:800;min-width:60px;text-align:center}
+  #tab-ano tr.mes-linha{cursor:pointer}
+  #tab-ano tr.mes-sel td{background:var(--azul-claro);font-weight:700}
+  #tab-ano td.col-proj{color:var(--amarelo)}
+  .mini-hint{font-size:11px;font-weight:400;opacity:.8;margin-left:8px}
+
+  /* Fee fixo */
+  .painel-fee .painel-cab{background:#0f766e;color:#fff}
+  .painel-fee{margin-bottom:24px}
+
+  /* Bônus */
+  .painel-bonus .painel-cab{background:#7c3aed;color:#fff}
+  .painel-bonus{margin-bottom:24px}
+
+  /* Filtro de visão */
+  .visao{display:flex;gap:0;border:1px solid var(--borda);border-radius:8px;overflow:hidden}
+  .visao button{border:none;background:#fff;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--cinza)}
+  .visao button.ativo{background:var(--azul);color:#fff}
+
+  /* Modal */
+  dialog{border:none;border-radius:14px;padding:0;max-width:440px;width:92vw;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+  dialog::backdrop{background:rgba(15,23,42,.45)}
+  .modal-cab{background:var(--azul);color:#fff;padding:14px 18px;font-weight:700;font-size:16px}
+  .modal-corpo{padding:18px}
+  .campo{margin-bottom:12px}
+  .campo label{display:block;font-size:12px;font-weight:700;color:var(--cinza);margin-bottom:4px}
+  .campo input,.campo select{width:100%;padding:9px 10px;border:1px solid var(--borda);border-radius:8px;font-size:14px}
+  .linha2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .radios{display:flex;gap:14px;padding:6px 0}
+  .radios label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer}
+  .modal-acoes{display:flex;justify-content:flex-end;gap:10px;padding:0 18px 18px}
+
+  details.cancel{margin-bottom:24px}
+  details.cancel summary{cursor:pointer;font-weight:600;color:var(--cinza);padding:8px 0}
+  @media(max-width:700px){body{padding:10px}.card .valor{font-size:24px}}
+</style>
+</head>
+<body>
+
+<h1>Controle de Receita</h1>
+<div class="sub">Valor Vendido × ROA = Receita Escritório · Receita × % Repasse = Repasse · IR 20% · Líquido = Repasse − IR.<br>
+<b>Competência:</b> venda à vista conta no mês da venda · consórcio/parcelado e fee fixo contam a partir do mês seguinte. <b>Pagamento:</b> sempre no dia 15 do mês seguinte à competência (ex.: competência julho → cai em 15/08).</div>
+
+<div class="topbar">
+  <label for="mes">Competência:</label>
+  <div class="mes-nav">
+    <button onclick="mudarMes(-1)" title="Mês anterior">◀</button>
+    <input type="month" id="mes">
+    <button onclick="mudarMes(1)" title="Próximo mês">▶</button>
+  </div>
+  <div class="visao">
+    <button id="vis-mes" class="ativo" onclick="setVisao('mes')">Só o mês</button>
+    <button id="vis-todas" onclick="setVisao('todas')">Todas as vendas</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn btn-azul" onclick="abrirModalVenda()">＋ Adicionar Venda</button>
+  <button class="btn btn-cinza" onclick="exportarBackup()">⬇ Backup</button>
+  <button class="btn btn-cinza" onclick="document.getElementById('importFile').click()">⬆ Restaurar</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarBackup(this)">
+</div>
+
+<div class="dash">
+  <div class="card c-receita"><div class="rotulo">Receita Escritório (mês)</div><div class="valor" id="d-receita">R$ 0,00</div><div class="extra">Vendas efetivadas + fee fixo</div></div>
+  <div class="card c-ir"><div class="rotulo">IR a Pagar (mês)</div><div class="valor" id="d-ir">R$ 0,00</div><div class="extra">20% sobre o repasse efetivado</div></div>
+  <div class="card c-proj"><div class="rotulo">Salário Líquido Projetado</div><div class="valor" id="d-proj">R$ 0,00</div><div class="extra" id="d-proj-extra">Efetivado + projeção do mês</div></div>
+  <div class="card c-liquido"><div class="rotulo">Salário Líquido Efetivo</div><div class="valor" id="d-liquido">R$ 0,00</div><div class="extra" id="d-liquido-extra">Somente efetivadas + fee fixo</div></div>
+</div>
+
+<div class="meta-box">
+  <div class="meta-topo">
+    <span class="titulo">🎯 Meta de Salário Líquido do Mês</span>
+    <label>Meta (R$) <input id="meta-valor" inputmode="decimal" placeholder="20.000,00"></label>
+    <label>% repasse p/ conversão <input id="meta-repasse" inputmode="decimal" style="width:70px"></label>
+  </div>
+  <div class="termometro">
+    <div class="term-ef" id="term-ef"></div>
+    <div class="term-pj" id="term-pj"></div>
+    <div class="term-label" id="term-label">Defina sua meta para ativar o termômetro</div>
+  </div>
+  <div class="pace" id="pace"></div>
+</div>
+
+<div class="duas">
+  <div class="painel painel-azul">
+    <div class="painel-cab">✅ Efetivadas <span class="selo selo-efet">receita confirmada</span></div>
+    <div class="painel-corpo">
+      <table id="tab-efet">
+        <thead><tr>
+          <th>Cliente</th><th>Produto</th><th class="num">Valor Vendido</th><th class="num">ROA %</th><th class="num">Receita Escrit.</th><th class="num">% Repasse</th><th class="num">Repasse</th><th class="num">IR</th><th class="num">Salário Líq.</th><th class="num">Parc.</th><th>Data</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="painel painel-amarelo">
+    <div class="painel-cab">🔮 Projeção <span class="selo selo-proj">⚠ cenário — não somado como receita confirmada</span></div>
+    <div class="aviso-proj">Os valores abaixo são apenas projeção. Clique ✅ para confirmar (move para Efetivadas) ou ❌ para cancelar.</div>
+    <div class="painel-corpo">
+      <table id="tab-proj">
+        <thead><tr>
+          <th>Cliente</th><th>Produto</th><th class="num">Valor Vendido</th><th class="num">ROA %</th><th class="num">Receita Escrit.</th><th class="num">% Repasse</th><th class="num">Repasse</th><th class="num">IR</th><th class="num">Salário Líq.</th><th class="num">Parc.</th><th>Data</th><th>✅</th><th>❌</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="painel painel-ano">
+  <div class="painel-cab">📅 Visão Anual — mês a mês
+    <span class="mini-hint">parcelas de 12x aparecem nos meses/anos em que caem · clique num mês para abrir a competência</span>
+    <div class="nav-ano">
+      <button onclick="mudarAno(-1)" title="Ano anterior">◀</button>
+      <span class="ano-atual" id="ano-atual">2026</span>
+      <button onclick="mudarAno(1)" title="Próximo ano">▶</button>
+    </div>
+  </div>
+  <div class="painel-corpo">
+    <table id="tab-ano">
+      <thead><tr>
+        <th>Mês (competência)</th>
+        <th>Pago em</th>
+        <th class="num">Receita Escritório</th>
+        <th class="num">Repasse</th>
+        <th class="num">IR</th>
+        <th class="num">Líquido Efetivo</th>
+        <th class="num">Projeção (líq.)</th>
+        <th class="num">Líquido Projetado</th>
+      </tr></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="painel painel-fee">
+  <div class="painel-cab">🏦 Fee Fixo — receita recorrente mensal
+    <span class="mini-hint">conta a partir do mês seguinte ao início · 1º pagamento no dia 15 do mês subsequente</span>
+    <div class="spacer"></div>
+    <button class="btn btn-sm btn-cinza" onclick="addFee()">＋ Adicionar Cliente</button>
+  </div>
+  <div class="painel-corpo">
+    <table id="tab-fee">
+      <thead><tr>
+        <th>Cliente</th><th>Início</th><th class="num">PL (Patrimônio)</th><th class="num">% a.a.</th><th class="num">Receita Anual</th><th class="num">Receita Mensal</th><th class="num">% Repasse</th><th class="num">Repasse Mensal</th><th class="num">IR</th><th class="num">Líquido Mensal</th><th></th>
+      </tr></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="painel painel-bonus">
+  <div class="painel-cab">💰 Bônus — 100% seu, sem repasse
+    <span class="mini-hint">conta na competência do mês inserido · pago no dia 15 do mês seguinte, por N vezes</span>
+    <div class="spacer"></div>
+    <button class="btn btn-sm btn-cinza" onclick="addBonus()">＋ Adicionar Bônus</button>
+  </div>
+  <div class="painel-corpo">
+    <table id="tab-bonus">
+      <thead><tr>
+        <th>Descrição</th><th class="num">Valor por vez</th><th class="num">Nº de vezes</th><th>Início</th><th>1º pagamento</th><th>Último pagamento</th><th class="num">Total</th><th></th>
+      </tr></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+</div>
+
+<details class="cancel">
+  <summary>Histórico de canceladas (<span id="qtd-cancel">0</span>)</summary>
+  <div class="painel"><div class="painel-corpo">
+    <table id="tab-cancel">
+      <thead><tr><th>Cliente</th><th>Produto</th><th class="num">Valor Vendido</th><th class="num">ROA %</th><th class="num">% Repasse</th><th class="num">Parc.</th><th>Data</th><th>Restaurar</th><th>Excluir</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div></div>
+</details>
+
+<dialog id="modal-venda">
+  <div class="modal-cab">Adicionar Venda</div>
+  <form method="dialog" onsubmit="salvarVenda(event)">
+    <div class="modal-corpo">
+      <div class="campo"><label>Cliente</label><input id="f-cliente" required></div>
+      <div class="campo"><label>Produto</label><input id="f-produto" required placeholder="Ex.: Consórcio, COE, Renda Fixa"></div>
+      <div class="linha2">
+        <div class="campo"><label>Valor Vendido (R$)</label><input id="f-valor" required inputmode="decimal" placeholder="100.000,00"></div>
+        <div class="campo"><label>ROA % </label><input id="f-roa" required inputmode="decimal" placeholder="4"></div>
+      </div>
+      <div class="linha2">
+        <div class="campo"><label>% Repasse</label><input id="f-repasse" required inputmode="decimal" placeholder="50"></div>
+        <div class="campo"><label>Nº de Parcelas</label><input id="f-parcelas" type="number" min="1" step="1" value="1" required></div>
+      </div>
+      <div class="campo"><label>Data da Venda</label><input id="f-data" type="date" required></div>
+      <div class="campo"><label>Tipo</label>
+        <div class="radios">
+          <label><input type="radio" name="f-status" value="efetivada" checked> Efetivada</label>
+          <label><input type="radio" name="f-status" value="projecao"> Projeção</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-acoes">
+      <button type="button" class="btn btn-cinza" onclick="document.getElementById('modal-venda').close()">Cancelar</button>
+      <button type="submit" class="btn btn-azul">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+"use strict";
+const LS_KEY = "receitaAssessor_v1";
+let state = { vendas: [], fees: [], bonus: [], canceladas: [] };
+let visao = "mes"; // "mes" | "todas"
+let anoSel = new Date().getFullYear();
+
+/* ---------- persistência ---------- */
+function salvar(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function carregar(){
+  try{ const s = JSON.parse(localStorage.getItem(LS_KEY)); if(s && s.vendas) state = Object.assign({vendas:[],fees:[],canceladas:[]}, s); }catch(e){}
+  state.config = Object.assign({meta:0, repassePadrao:50}, state.config || {});
+  if(!Array.isArray(state.bonus)) state.bonus = [];
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+/* ---------- formatação / parsing ---------- */
+const fmtBRL = v => (isFinite(v)?v:0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const fmtPct = v => (isFinite(v)?v:0).toLocaleString("pt-BR",{maximumFractionDigits:4}) + "%";
+function parseNum(str){
+  if(typeof str === "number") return str;
+  let s = String(str).replace(/[R$%\s]/g,"").trim();
+  if(!s) return 0;
+  if(s.includes(",")){ s = s.replace(/\./g,"").replace(",","."); }
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+function fmtData(iso){ if(!iso) return ""; const [y,m,d] = iso.split("-"); return `${d}/${m}/${y}`; }
+function parseData(str){
+  str = str.trim();
+  let m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(m) return str;
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  return null;
+}
+function esc(s){ return String(s??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------- regra de negócio ---------- */
+function calc(v){
+  const receita = v.valor * v.roa / 100;
+  const repasse = receita * v.repasse / 100;
+  const ir = repasse * 0.20;
+  return { receita, repasse, ir, liquido: repasse - ir };
+}
+function calcFee(f){
+  const anual = f.pl * f.taxa / 100;
+  const mensal = anual / 12;
+  const repasse = mensal * f.repasse / 100;
+  const ir = repasse * 0.20;
+  return { anual, mensal, repasse, ir, liquido: repasse - ir };
+}
+function ymOf(iso){ return iso ? iso.slice(0,7) : ""; }
+function addMonths(ym, n){
+  const [y,m] = ym.split("-").map(Number);
+  const d = new Date(y, m-1+n, 1);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+}
+/* Pagamento: dia 15 do mês seguinte à competência */
+function pagamentoDe(ym){ const p = addMonths(ym,1); return "15/" + p.slice(5,7) + "/" + p.slice(0,4); }
+/* Fee fixo conta a partir do mês SEGUINTE ao início */
+function feeAtivo(f, ym){
+  if(!f.inicio) return true; // registros antigos sem data: sempre ativo
+  return monthDiff(ymOf(f.inicio), ym) >= 1;
+}
+function monthDiff(a,b){
+  const [ya,ma] = a.split("-").map(Number), [yb,mb] = b.split("-").map(Number);
+  return (yb-ya)*12 + (mb-ma);
+}
+/* Fatia da venda que cai na competência ym.
+   Parcelas=1 → tudo no mês da venda. Parcelas=N>1 → 1/N do mês seguinte em diante. */
+function sliceForMonth(v, ym){
+  const t = calc(v);
+  const base = ymOf(v.data);
+  const n = Math.max(1, Math.round(v.parcelas) || 1);
+  if(n === 1) return ym === base ? {...t, k:1, n:1} : null;
+  const k = monthDiff(base, ym); // parcela k: k meses após a venda (1..N)
+  if(k >= 1 && k <= n){
+    const f = 1/n;
+    return { receita:t.receita*f, repasse:t.repasse*f, ir:t.ir*f, liquido:t.liquido*f, k, n };
+  }
+  return null;
+}
+
+/* ---------- estado de visão ---------- */
+function mesSel(){ return document.getElementById("mes").value; }
+function setVisao(v){
+  visao = v;
+  document.getElementById("vis-mes").classList.toggle("ativo", v==="mes");
+  document.getElementById("vis-todas").classList.toggle("ativo", v==="todas");
+  render();
+}
+
+/* ---------- render ---------- */
+function render(){
+  const ym = mesSel();
+  renderDash(ym);
+  renderMeta(ym);
+  renderVendas("efetivada", document.querySelector("#tab-efet tbody"), document.querySelector("#tab-efet tfoot"), ym);
+  renderVendas("projecao", document.querySelector("#tab-proj tbody"), document.querySelector("#tab-proj tfoot"), ym);
+  renderFee();
+  renderBonus();
+  renderAno();
+  renderCancel();
+  salvar();
+}
+
+/* ---------- bônus ---------- */
+function renderBonus(){
+  const tbody = document.querySelector("#tab-bonus tbody");
+  const tfoot = document.querySelector("#tab-bonus tfoot");
+  if(state.bonus.length === 0){
+    tbody.innerHTML = `<tr><td colspan="8" class="vazio">Nenhum bônus cadastrado</td></tr>`;
+    tfoot.innerHTML = ""; return;
+  }
+  let totGeral = 0;
+  tbody.innerHTML = state.bonus.map(b=>{
+    const n = Math.max(1, Math.round(b.vezes) || 1);
+    const base = ymOf(b.data);
+    const total = b.valor * n;
+    totGeral += total;
+    return `<tr>
+      <td class="editable" contenteditable data-id="${b.id}" data-field="descricao" data-type="text" data-kind="bonus">${esc(b.descricao)}</td>
+      <td class="num editable" contenteditable data-id="${b.id}" data-field="valor" data-type="money" data-kind="bonus">${fmtBRL(b.valor)}</td>
+      <td class="num editable" contenteditable data-id="${b.id}" data-field="vezes" data-type="int" data-kind="bonus">${n}</td>
+      <td class="editable" contenteditable data-id="${b.id}" data-field="data" data-type="date" data-kind="bonus">${fmtData(b.data)}</td>
+      <td class="calc">${base ? pagamentoDe(base) : ""}</td>
+      <td class="calc">${base ? pagamentoDe(addMonths(base, n-1)) : ""}</td>
+      <td class="num calc destaque">${fmtBRL(total)}</td>
+      <td><button class="acao" title="Excluir" onclick="excluirBonus('${b.id}')">🗑️</button></td>
+    </tr>`;
+  }).join("");
+  tfoot.innerHTML = `<tr><td colspan="6">Total</td><td class="num">${fmtBRL(totGeral)}</td><td></td></tr>`;
+}
+function addBonus(){
+  const desc = prompt("Descrição do bônus (ex.: Bônus captação):");
+  if(!desc) return;
+  state.bonus.push({ id: uid(), descricao: desc.trim(), valor: 0, vezes: 1, data: new Date().toISOString().slice(0,10) });
+  render();
+}
+function excluirBonus(id){
+  if(!confirm("Excluir este bônus?")) return;
+  state.bonus = state.bonus.filter(x=>x.id!==id); render();
+}
+
+/* ---------- meta / termômetro ---------- */
+function renderMeta(ym){
+  const meta = state.config.meta || 0;
+  const ef = somaMes("efetivada", ym), pj = somaMes("projecao", ym), fee = somaFee(ym);
+  const liqEf = ef.liquido + fee.liquido + somaBonus(ym), liqPj = pj.liquido;
+  const bEf = document.getElementById("term-ef"), bPj = document.getElementById("term-pj");
+  const label = document.getElementById("term-label"), pace = document.getElementById("pace");
+  if(meta <= 0){
+    bEf.style.width = "0"; bPj.style.width = "0";
+    label.textContent = "Defina sua meta para ativar o termômetro";
+    pace.innerHTML = ""; return;
+  }
+  const pctEf = liqEf / meta * 100;
+  const pctTot = (liqEf + liqPj) / meta * 100;
+  const wEf = Math.min(100, pctEf), wTot = Math.min(100, pctTot);
+  bEf.style.width = wEf + "%";
+  bPj.style.left = wEf + "%";
+  bPj.style.width = Math.max(0, wTot - wEf) + "%";
+  label.textContent = pctEf.toFixed(0) + "% da meta" + (liqPj > 0 ? ` · ${pctTot.toFixed(0)}% com projeção` : "");
+
+  /* PACE: meta convertida em receita escritório, distribuída pelos dias do mês */
+  const fator = (state.config.repassePadrao || 50) / 100 * 0.8; // repasse × (1 − IR 20%)
+  const metaReceita = fator > 0 ? meta / fator : 0;
+  const [y, m] = ym.split("-").map(Number);
+  const diasNoMes = new Date(y, m, 0).getDate();
+  const paceDia = metaReceita / diasNoMes;
+  const gerado = ef.receita + fee.receita;
+  const agora = new Date();
+  const ymHoje = agora.getFullYear() + "-" + String(agora.getMonth()+1).padStart(2,"0");
+
+  let html = `
+    <div class="pace-item">Meta em receita escritório<b>${fmtBRL(metaReceita)}</b></div>
+    <div class="pace-item">Pace necessário<b>${fmtBRL(paceDia)}/dia</b></div>
+    <div class="pace-item">Gerado no mês<b>${fmtBRL(gerado)}</b></div>`;
+
+  if(ym === ymHoje){
+    const dia = agora.getDate();
+    const esperado = paceDia * dia;
+    const gap = gerado - esperado;
+    const diasRest = Math.max(0, diasNoMes - dia);
+    const necRest = Math.max(0, metaReceita - gerado) / Math.max(1, diasRest);
+    html += `<div class="pace-item">Esperado até hoje (dia ${dia}/${diasNoMes})<b>${fmtBRL(esperado)}</b></div>`;
+    if(gerado >= metaReceita){
+      html += `<div class="pace-chip pace-frente">✅ Meta de receita batida · +${fmtBRL(gerado - metaReceita)}</div>`;
+    } else if(gap >= 0){
+      html += `<div class="pace-chip pace-frente">🟢 À frente do pace: +${fmtBRL(gap)} · faltam ${fmtBRL(necRest)}/dia nos ${diasRest} dias restantes</div>`;
+    } else {
+      html += `<div class="pace-chip pace-atras">🔴 Atrás do pace: −${fmtBRL(Math.abs(gap))} · acelere para ${fmtBRL(necRest)}/dia nos ${diasRest} dias restantes</div>`;
+    }
+  } else if(ym < ymHoje){
+    html += gerado >= metaReceita
+      ? `<div class="pace-chip pace-frente">✅ Mês fechado acima da meta · +${fmtBRL(gerado - metaReceita)}</div>`
+      : `<div class="pace-chip pace-atras">Mês fechado abaixo da meta · −${fmtBRL(metaReceita - gerado)}</div>`;
+  } else {
+    html += `<div class="pace-chip pace-neutro">Mês futuro · planeje ${fmtBRL(paceDia)}/dia</div>`;
+  }
+  pace.innerHTML = html;
+}
+function mudarMes(delta){
+  const el = document.getElementById("mes");
+  if(el.value) { el.value = addMonths(el.value, delta); render(); }
+}
+
+/* ---------- visão anual ---------- */
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+function mudarAno(delta){ anoSel += delta; renderAno(); }
+function irParaMes(ym){
+  document.getElementById("mes").value = ym;
+  setVisao("mes");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function renderAno(){
+  document.getElementById("ano-atual").textContent = anoSel;
+  const tbody = document.querySelector("#tab-ano tbody");
+  const tfoot = document.querySelector("#tab-ano tfoot");
+  const mesAtivo = mesSel();
+  const tot = {receita:0, repasse:0, ir:0, liqEf:0, liqPj:0, liqTot:0};
+  let html = "";
+  for(let m=1; m<=12; m++){
+    const ym = anoSel + "-" + String(m).padStart(2,"0");
+    const ef = somaMes("efetivada", ym), pj = somaMes("projecao", ym), fee = somaFee(ym), bon = somaBonus(ym);
+    const receita = ef.receita + fee.receita;
+    const repasse = ef.repasse + fee.repasse;
+    const ir = ef.ir + fee.ir;
+    const liqEf = ef.liquido + fee.liquido + bon;
+    const liqTot = liqEf + pj.liquido;
+    tot.receita+=receita; tot.repasse+=repasse; tot.ir+=ir; tot.liqEf+=liqEf; tot.liqPj+=pj.liquido; tot.liqTot+=liqTot;
+    const sel = ym === mesAtivo ? " mes-sel" : "";
+    html += `<tr class="mes-linha${sel}" onclick="irParaMes('${ym}')">
+      <td>${MESES[m-1]}</td>
+      <td>${pagamentoDe(ym)}</td>
+      <td class="num">${fmtBRL(receita)}</td>
+      <td class="num">${fmtBRL(repasse)}</td>
+      <td class="num">${fmtBRL(ir)}</td>
+      <td class="num destaque">${fmtBRL(liqEf)}</td>
+      <td class="num col-proj">${pj.liquido ? fmtBRL(pj.liquido) : "—"}</td>
+      <td class="num">${fmtBRL(liqTot)}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+  tfoot.innerHTML = `<tr>
+    <td>Total ${anoSel}</td>
+    <td></td>
+    <td class="num">${fmtBRL(tot.receita)}</td>
+    <td class="num">${fmtBRL(tot.repasse)}</td>
+    <td class="num">${fmtBRL(tot.ir)}</td>
+    <td class="num">${fmtBRL(tot.liqEf)}</td>
+    <td class="num col-proj">${tot.liqPj ? fmtBRL(tot.liqPj) : "—"}</td>
+    <td class="num">${fmtBRL(tot.liqTot)}</td>
+  </tr>`;
+}
+
+function somaMes(status, ym){
+  const acc = {receita:0, repasse:0, ir:0, liquido:0};
+  state.vendas.filter(v => v.status===status).forEach(v=>{
+    const s = sliceForMonth(v, ym);
+    if(s){ acc.receita+=s.receita; acc.repasse+=s.repasse; acc.ir+=s.ir; acc.liquido+=s.liquido; }
+  });
+  return acc;
+}
+/* Bônus: conta na competência do mês da inserção, por N meses. 100% do valor, sem repasse e sem IR. */
+function somaBonus(ym){
+  let s = 0;
+  state.bonus.forEach(b=>{
+    if(!b.data) return;
+    const k = monthDiff(ymOf(b.data), ym); // 0 = mês da inserção
+    const n = Math.max(1, Math.round(b.vezes) || 1);
+    if(k >= 0 && k < n) s += b.valor;
+  });
+  return s;
+}
+
+function somaFee(ym){
+  const acc = {receita:0, repasse:0, ir:0, liquido:0};
+  state.fees.forEach(f=>{
+    if(ym && !feeAtivo(f, ym)) return;
+    const c=calcFee(f); acc.receita+=c.mensal; acc.repasse+=c.repasse; acc.ir+=c.ir; acc.liquido+=c.liquido;
+  });
+  return acc;
+}
+
+function renderDash(ym){
+  const ef = somaMes("efetivada", ym), pj = somaMes("projecao", ym), fee = somaFee(ym), bon = somaBonus(ym);
+  const liqEf = ef.liquido + fee.liquido + bon;
+  document.getElementById("d-receita").textContent = fmtBRL(ef.receita + fee.receita);
+  document.getElementById("d-ir").textContent = fmtBRL(ef.ir + fee.ir);
+  document.getElementById("d-liquido").textContent = fmtBRL(liqEf);
+  document.getElementById("d-liquido-extra").textContent =
+    (bon > 0 ? `Efetivadas + fee + bônus (${fmtBRL(bon)})` : `Efetivadas + fee fixo`) + ` · cai em ${pagamentoDe(ym)}`;
+  document.getElementById("d-proj").textContent = fmtBRL(liqEf + pj.liquido);
+  document.getElementById("d-proj-extra").textContent =
+    pj.liquido > 0 ? `Inclui ${fmtBRL(pj.liquido)} de projeção · pagaria em ${pagamentoDe(ym)}` : "Efetivado + projeção do mês";
+}
+
+function renderVendas(status, tbody, tfoot, ym){
+  const isProj = status === "projecao";
+  let linhas = state.vendas.filter(v => v.status === status);
+  // Na visão mensal, mostra só vendas com competência no mês (com valores da parcela do mês)
+  const dados = linhas.map(v => ({v, s: sliceForMonth(v, ym)}));
+  const visiveis = visao === "mes" ? dados.filter(d => d.s) : dados;
+
+  if(visiveis.length === 0){
+    const cols = isProj ? 14 : 12;
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="vazio">Nenhuma venda ${visao==="mes"?"nesta competência":""}</td></tr>`;
+    tfoot.innerHTML = "";
+    return;
+  }
+
+  const tot = {receita:0, repasse:0, ir:0, liquido:0};
+  tbody.innerHTML = visiveis.map(({v,s})=>{
+    const t = calc(v);
+    // valores exibidos: fatia do mês (visão mensal) ou total da venda (visão todas)
+    const vals = (visao==="mes" && s) ? s : t;
+    tot.receita+=vals.receita; tot.repasse+=vals.repasse; tot.ir+=vals.ir; tot.liquido+=vals.liquido;
+    const badge = (visao==="mes" && s && s.n>1) ? `<span class="badge-parc">parc. ${s.k}/${s.n}</span>` : "";
+    const acoes = isProj
+      ? `<td><button class="acao" title="Confirmar venda" onclick="confirmarVenda('${v.id}')">✅</button></td>
+         <td><button class="acao" title="Cancelar (vai p/ histórico)" onclick="cancelarVenda('${v.id}')">❌</button></td>
+         <td><button class="acao" title="Excluir" onclick="excluirVenda('${v.id}')">🗑️</button></td>`
+      : `<td><button class="acao" title="Excluir" onclick="excluirVenda('${v.id}')">🗑️</button></td>`;
+    return `<tr>
+      <td class="editable" contenteditable data-id="${v.id}" data-field="cliente" data-type="text">${esc(v.cliente)}</td>
+      <td class="editable" contenteditable data-id="${v.id}" data-field="produto" data-type="text">${esc(v.produto)}</td>
+      <td class="num editable" contenteditable data-id="${v.id}" data-field="valor" data-type="money">${fmtBRL(v.valor)}</td>
+      <td class="num editable" contenteditable data-id="${v.id}" data-field="roa" data-type="pct">${fmtPct(v.roa)}</td>
+      <td class="num calc">${fmtBRL(vals.receita)}${badge}</td>
+      <td class="num editable" contenteditable data-id="${v.id}" data-field="repasse" data-type="pct">${fmtPct(v.repasse)}</td>
+      <td class="num calc">${fmtBRL(vals.repasse)}</td>
+      <td class="num calc">${fmtBRL(vals.ir)}</td>
+      <td class="num calc destaque">${fmtBRL(vals.liquido)}</td>
+      <td class="num editable" contenteditable data-id="${v.id}" data-field="parcelas" data-type="int">${Math.max(1,Math.round(v.parcelas)||1)}</td>
+      <td class="editable" contenteditable data-id="${v.id}" data-field="data" data-type="date">${fmtData(v.data)}</td>
+      ${acoes}
+    </tr>`;
+  }).join("");
+
+  const nAcoes = isProj ? 3 : 1;
+  tfoot.innerHTML = `<tr>
+    <td colspan="4">Total ${visao==="mes" ? "(competência do mês)" : "(valor cheio das vendas)"}</td>
+    <td class="num">${fmtBRL(tot.receita)}</td><td></td>
+    <td class="num">${fmtBRL(tot.repasse)}</td>
+    <td class="num">${fmtBRL(tot.ir)}</td>
+    <td class="num">${fmtBRL(tot.liquido)}</td>
+    <td colspan="${2+nAcoes}"></td>
+  </tr>`;
+}
+
+function renderFee(){
+  const tbody = document.querySelector("#tab-fee tbody");
+  const tfoot = document.querySelector("#tab-fee tfoot");
+  if(state.fees.length === 0){
+    tbody.innerHTML = `<tr><td colspan="11" class="vazio">Nenhum cliente de fee fixo cadastrado</td></tr>`;
+    tfoot.innerHTML = ""; return;
+  }
+  const tot = {anual:0, mensal:0, repasse:0, ir:0, liquido:0};
+  tbody.innerHTML = state.fees.map(f=>{
+    const c = calcFee(f);
+    tot.anual+=c.anual; tot.mensal+=c.mensal; tot.repasse+=c.repasse; tot.ir+=c.ir; tot.liquido+=c.liquido;
+    return `<tr>
+      <td class="editable" contenteditable data-id="${f.id}" data-field="cliente" data-type="text" data-kind="fee">${esc(f.cliente)}</td>
+      <td class="editable" contenteditable data-id="${f.id}" data-field="inicio" data-type="date" data-kind="fee" title="Conta a partir do mês seguinte">${fmtData(f.inicio)}</td>
+      <td class="num editable" contenteditable data-id="${f.id}" data-field="pl" data-type="money" data-kind="fee">${fmtBRL(f.pl)}</td>
+      <td class="num editable" contenteditable data-id="${f.id}" data-field="taxa" data-type="pct" data-kind="fee">${fmtPct(f.taxa)}</td>
+      <td class="num calc">${fmtBRL(c.anual)}</td>
+      <td class="num calc">${fmtBRL(c.mensal)}</td>
+      <td class="num editable" contenteditable data-id="${f.id}" data-field="repasse" data-type="pct" data-kind="fee">${fmtPct(f.repasse)}</td>
+      <td class="num calc">${fmtBRL(c.repasse)}</td>
+      <td class="num calc">${fmtBRL(c.ir)}</td>
+      <td class="num calc destaque">${fmtBRL(c.liquido)}</td>
+      <td><button class="acao" title="Excluir" onclick="excluirFee('${f.id}')">🗑️</button></td>
+    </tr>`;
+  }).join("");
+  tfoot.innerHTML = `<tr><td colspan="4">Total</td>
+    <td class="num">${fmtBRL(tot.anual)}</td><td class="num">${fmtBRL(tot.mensal)}</td><td></td>
+    <td class="num">${fmtBRL(tot.repasse)}</td><td class="num">${fmtBRL(tot.ir)}</td>
+    <td class="num">${fmtBRL(tot.liquido)}</td><td></td></tr>`;
+}
+
+function renderCancel(){
+  document.getElementById("qtd-cancel").textContent = state.canceladas.length;
+  const tbody = document.querySelector("#tab-cancel tbody");
+  if(state.canceladas.length === 0){ tbody.innerHTML = `<tr><td colspan="9" class="vazio">Nenhuma venda cancelada</td></tr>`; return; }
+  tbody.innerHTML = state.canceladas.map(v=>`<tr>
+    <td>${esc(v.cliente)}</td><td>${esc(v.produto)}</td>
+    <td class="num">${fmtBRL(v.valor)}</td><td class="num">${fmtPct(v.roa)}</td>
+    <td class="num">${fmtPct(v.repasse)}</td><td class="num">${v.parcelas}</td><td>${fmtData(v.data)}</td>
+    <td><button class="acao" onclick="restaurarVenda('${v.id}')">↩️</button></td>
+    <td><button class="acao" onclick="excluirCancelada('${v.id}')">🗑️</button></td>
+  </tr>`).join("");
+}
+
+/* ---------- edição inline ---------- */
+document.addEventListener("focusout", e=>{
+  const td = e.target.closest?.("td.editable");
+  if(!td) return;
+  aplicarEdicao(td);
+});
+document.addEventListener("keydown", e=>{
+  const td = e.target.closest?.("td.editable");
+  if(td && e.key === "Enter"){ e.preventDefault(); td.blur(); }
+  if(td && e.key === "Escape"){ e.preventDefault(); render(); }
+});
+function aplicarEdicao(td){
+  const {id, field, type, kind} = td.dataset;
+  const lista = kind === "fee" ? state.fees : kind === "bonus" ? state.bonus : state.vendas;
+  const item = lista.find(x => x.id === id);
+  if(!item) return;
+  const raw = td.textContent.trim();
+  let novo;
+  if(type === "text"){ novo = raw; }
+  else if(type === "date"){
+    const d = parseData(raw);
+    if(!d){ render(); return; } // formato inválido → desfaz
+    novo = d;
+  }
+  else if(type === "int"){ novo = Math.max(1, Math.round(parseNum(raw)) || 1); }
+  else { novo = parseNum(raw); }
+  if(item[field] !== novo){ item[field] = novo; }
+  render();
+}
+
+/* ---------- ações de venda ---------- */
+function abrirModalVenda(){
+  const dlg = document.getElementById("modal-venda");
+  document.getElementById("f-cliente").value = "";
+  document.getElementById("f-produto").value = "";
+  document.getElementById("f-valor").value = "";
+  document.getElementById("f-roa").value = "";
+  document.getElementById("f-repasse").value = "";
+  document.getElementById("f-parcelas").value = "1";
+  document.getElementById("f-data").value = new Date().toISOString().slice(0,10);
+  dlg.showModal();
+}
+function salvarVenda(e){
+  e.preventDefault();
+  state.vendas.push({
+    id: uid(),
+    cliente: document.getElementById("f-cliente").value.trim(),
+    produto: document.getElementById("f-produto").value.trim(),
+    valor: parseNum(document.getElementById("f-valor").value),
+    roa: parseNum(document.getElementById("f-roa").value),
+    repasse: parseNum(document.getElementById("f-repasse").value),
+    parcelas: Math.max(1, parseInt(document.getElementById("f-parcelas").value,10) || 1),
+    data: document.getElementById("f-data").value,
+    status: document.querySelector('input[name="f-status"]:checked').value
+  });
+  document.getElementById("modal-venda").close();
+  render();
+}
+function confirmarVenda(id){
+  const v = state.vendas.find(x=>x.id===id);
+  if(v){ v.status = "efetivada"; render(); }
+}
+function cancelarVenda(id){
+  const i = state.vendas.findIndex(x=>x.id===id);
+  if(i>=0){ state.canceladas.push(state.vendas.splice(i,1)[0]); render(); }
+}
+function restaurarVenda(id){
+  const i = state.canceladas.findIndex(x=>x.id===id);
+  if(i>=0){ const v = state.canceladas.splice(i,1)[0]; v.status="projecao"; state.vendas.push(v); render(); }
+}
+function excluirVenda(id){
+  if(!confirm("Excluir esta venda definitivamente?")) return;
+  state.vendas = state.vendas.filter(x=>x.id!==id); render();
+}
+function excluirCancelada(id){
+  if(!confirm("Excluir do histórico definitivamente?")) return;
+  state.canceladas = state.canceladas.filter(x=>x.id!==id); render();
+}
+
+/* ---------- fee fixo ---------- */
+function addFee(){
+  const nome = prompt("Nome do cliente de Fee Fixo:");
+  if(!nome) return;
+  state.fees.push({ id: uid(), cliente: nome.trim(), inicio: new Date().toISOString().slice(0,10), pl: 0, taxa: 0, repasse: 50 });
+  render();
+}
+function excluirFee(id){
+  if(!confirm("Excluir este cliente de fee fixo?")) return;
+  state.fees = state.fees.filter(x=>x.id!==id); render();
+}
+
+/* ---------- backup ---------- */
+function exportarBackup(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "backup-receita-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importarBackup(input){
+  const file = input.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const s = JSON.parse(r.result);
+      if(s && Array.isArray(s.vendas)){ state = Object.assign({vendas:[],fees:[],canceladas:[]}, s); render(); alert("Backup restaurado."); }
+      else alert("Arquivo inválido.");
+    }catch(e){ alert("Arquivo inválido."); }
+    input.value = "";
+  };
+  r.readAsText(file);
+}
+
+/* ---------- init ---------- */
+carregar();
+const hoje = new Date();
+document.getElementById("mes").value = hoje.getFullYear() + "-" + String(hoje.getMonth()+1).padStart(2,"0");
+document.getElementById("mes").addEventListener("change", render);
+const inpMeta = document.getElementById("meta-valor");
+const inpMetaRep = document.getElementById("meta-repasse");
+inpMeta.value = state.config.meta ? state.config.meta.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : "";
+inpMetaRep.value = state.config.repassePadrao;
+inpMeta.addEventListener("change", ()=>{ state.config.meta = parseNum(inpMeta.value); render(); });
+inpMetaRep.addEventListener("change", ()=>{ state.config.repassePadrao = parseNum(inpMetaRep.value) || 50; render(); });
+render();
+</script>
+</body>
+</html>

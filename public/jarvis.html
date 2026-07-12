@@ -210,6 +210,32 @@
   .card-preview-item{ display:flex; flex-direction:column; gap:8px; align-items:center; }
   .card-preview-item canvas{ width:220px; height:275px; border-radius:8px; border:1px solid var(--border); background:#fff; }
 
+  /* ---------- AVISO DE VOZ ---------- */
+  .voice-warning{
+    background:#3a2a0a; border:1px solid #92660b; color:#fbbf24; font-size:12px;
+    padding:10px 14px; border-radius:8px; margin-bottom:14px; font-family:var(--mono); line-height:1.5;
+  }
+
+  /* ---------- PAINEL RESUMO ---------- */
+  .resumo-section{ margin-bottom:16px; padding:16px; background:var(--panel); border:1px solid var(--border); border-radius:14px; }
+  .resumo-header{ margin-bottom:12px; }
+  .resumo-title{ font-family:var(--mono); font-weight:700; font-size:13px; letter-spacing:0.1em; color:var(--text); }
+  .resumo-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .resumo-card{ background:#020407; border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .resumo-icon{ font-size:18px; margin-bottom:4px; }
+  .resumo-label{ font-family:var(--mono); font-size:10px; letter-spacing:0.05em; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px; }
+  .resumo-value{ font-size:18px; font-weight:700; color:var(--theme); margin-bottom:2px; }
+  .resumo-sub{ font-size:11px; color:var(--text-dim); }
+
+  /* ---------- GASTOS PENDENTES ---------- */
+  .pending-item{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; flex-wrap:wrap; }
+  .pending-item:last-child{ border-bottom:none; }
+  .pending-item button{
+    background:transparent; border:1px solid var(--theme); color:var(--theme); border-radius:6px;
+    padding:5px 10px; font-size:11px; white-space:nowrap;
+  }
+  .pending-item button:hover{ background:rgba(0,212,255,0.12); }
+
   /* ---------- RECEITA WIDGET ---------- */
   .receita-section{
     margin-top:14px; padding:14px 16px; background:var(--panel); border:1px solid var(--border);
@@ -312,6 +338,13 @@
     </div>
 
   <div id="tab-assistente">
+    <div class="voice-warning" id="voice-warning" hidden>⚠ Esse navegador não suporta escuta por voz (comum no Safari/iPhone) — o Jarvis ainda fala normalmente, mas pra dar comandos use o campo de texto abaixo.</div>
+
+    <section class="resumo-section">
+      <div class="resumo-header"><span class="resumo-title">🏠 PAINEL RESUMO</span></div>
+      <div class="resumo-grid" id="resumo-grid"></div>
+    </section>
+
     <section class="orb-section">
       <div class="orb-wrap" id="orb-wrap" title="clique pra falar">
         <div class="orb-ring ring-1"></div>
@@ -339,6 +372,13 @@
         <a href="receita.html" target="_blank" rel="noopener" class="receita-link">abrir painel completo →</a>
       </div>
       <div id="receita-body" class="receita-body">carregando...</div>
+    </section>
+
+    <section class="receita-section" id="pending-gastos-section" hidden>
+      <div class="receita-header">
+        <span class="receita-title">🧾 Gastos pendentes de lançar</span>
+      </div>
+      <div id="pending-gastos-list"></div>
     </section>
 
     <section class="brain-section">
@@ -725,6 +765,7 @@
     if(flashIds.length){
       saveNotes();
       renderGraph();
+      renderResumo();
       flashIds.forEach(flashNode);
     }
     return cleaned;
@@ -819,7 +860,12 @@
       return;
     }
 
-    if(mode === 'assistente' && tryLocalFinanceAnswer(text)) return;
+    if(mode === 'assistente'){
+      var logIntent = detectLogIntent(norm);
+      if(logIntent === 'venda'){ logVendaEvent(text); return; }
+      if(logIntent === 'gasto'){ logGastoEvent(text); return; }
+      if(tryLocalFinanceAnswer(text)) return;
+    }
 
     sendToBrain(text);
   }
@@ -933,6 +979,215 @@
     body.innerHTML =
       '<span class="receita-valor">' + fmtBRLLocal(summary.liquido) + '</span>' +
       '<span class="receita-meta">' + escapeXML(pctTxt) + '</span>';
+  }
+
+  /* ============ LANÇAMENTO POR VOZ (venda / gasto) ============ */
+  function todayISO(){ return new Date().toISOString().slice(0, 10); }
+
+  var VENDA_WORDS = ['vendi ', 'fechei uma venda', 'fiz uma venda', 'nova venda de'];
+  var GASTO_WORDS = ['gastei ', 'paguei ', 'comprei '];
+  function detectLogIntent(norm){
+    if(VENDA_WORDS.some(function(w){ return norm.indexOf(normalize(w)) !== -1; })) return 'venda';
+    if(GASTO_WORDS.some(function(w){ return norm.indexOf(normalize(w)) !== -1; })) return 'gasto';
+    return null;
+  }
+
+  function extractFinanceJSON(text, kind){
+    var key = '';
+    try{ key = localStorage.getItem('anthropic_key') || ''; }catch(e){}
+    if(!key) return Promise.reject(new Error('no-key'));
+
+    var today = todayISO();
+    var sys = kind === 'venda'
+      ? 'Extraia os dados da venda relatada e responda SOMENTE com um JSON válido, sem markdown, sem texto antes ou depois, no formato exato: {"cliente":"","produto":"","valor":0,"roa":0,"repasse":50,"parcelas":1,"data":"' + today + '","status":"efetivada"}. Use a data de hoje (' + today + ') quando não informada. "status" é "projecao" só se o usuário disser explicitamente que é uma venda futura, prevista ou ainda não fechada; senão "efetivada". Se ROA não for informado, estime um valor razoável entre 1 e 5. Se repasse não for informado, use 50.'
+      : 'Extraia os dados do gasto pessoal relatado e responda SOMENTE com um JSON válido, sem markdown, sem texto antes ou depois, no formato exato: {"descricao":"","valor":0,"data":"' + today + '","tipo":"saida"}. "tipo" é "diario" pra gastos do dia a dia (mercado, restaurante, transporte, farmácia, lazer) ou "saida" pra contas/pagamentos maiores (aluguel, boleto, fatura, financiamento). Use a data de hoje (' + today + ') quando não informada.';
+
+    return fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: CONFIG.model,
+        max_tokens: 250,
+        system: sys,
+        messages: [{ role:'user', content: text }]
+      })
+    }).then(function(res){
+      if(!res.ok) throw new Error('http-error');
+      return res.json();
+    }).then(function(data){
+      var raw = (data && data.content && data.content[0] && data.content[0].text) || '';
+      var match = raw.match(/\{[\s\S]*\}/);
+      if(!match) throw new Error('parse-error');
+      return JSON.parse(match[0]);
+    });
+  }
+
+  function logVendaEvent(text){
+    addLine('user', text);
+    setState('pensando');
+    busy = true;
+    stopRecognitionForTTS();
+
+    extractFinanceJSON(text, 'venda').then(function(v){
+      var state = loadReceitaState() || { vendas:[], fees:[], bonus:[], canceladas:[], config:{ meta:0, repassePadrao:50 } };
+      if(!state.vendas) state.vendas = [];
+      var entry = {
+        id: 'v' + Date.now(),
+        cliente: v.cliente || '',
+        produto: v.produto || '',
+        valor: Number(v.valor) || 0,
+        roa: Number(v.roa) || 0,
+        repasse: Number(v.repasse) || 50,
+        parcelas: Math.max(1, Math.round(Number(v.parcelas) || 1)),
+        data: /^\d{4}-\d{2}-\d{2}$/.test(v.data) ? v.data : todayISO(),
+        status: v.status === 'projecao' ? 'projecao' : 'efetivada'
+      };
+      state.vendas.push(entry);
+      try{ localStorage.setItem('receitaAssessor_v1', JSON.stringify(state)); }catch(e){}
+
+      var calc = calcVendaLocal(entry);
+      var msg = 'Anotei a venda' + (entry.cliente ? ' de ' + entry.cliente : '') + (entry.produto ? ' (' + entry.produto + ')' : '') +
+        ': ' + fmtBRLLocal(entry.valor) + ', líquido estimado de ' + fmtBRLLocal(calc.liquido) +
+        '. Já tá no seu controle de receita' + (entry.status === 'projecao' ? ', como projeção.' : '.');
+      addLine('assistant', msg);
+      speak(msg);
+      renderReceitaWidget();
+      renderResumo();
+    }).catch(function(err){
+      var msg = (err && err.message === 'no-key')
+        ? 'Preciso da chave da API pra anotar isso, ' + CONFIG.address + '.'
+        : 'Não consegui identificar os dados dessa venda direito, ' + CONFIG.address + '. Descreve de novo com valor e cliente?';
+      addLine('assistant', msg);
+      speak(msg);
+    });
+  }
+
+  function loadPendingGastos(){
+    try{
+      var raw = localStorage.getItem('jarvis_pending_gastos');
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function savePendingGastos(list){
+    try{ localStorage.setItem('jarvis_pending_gastos', JSON.stringify(list)); }catch(e){}
+  }
+
+  function renderPendingGastos(){
+    var list = loadPendingGastos();
+    var section = $('pending-gastos-section');
+    var container = $('pending-gastos-list');
+    if(!list.length){ section.hidden = true; return; }
+    section.hidden = false;
+    container.innerHTML = list.map(function(g){
+      return '<div class="pending-item">' +
+        '<span>' + escapeXML(g.data) + ' · ' + escapeXML(g.descricao) + ' · ' + fmtBRLLocal(g.valor) + ' (' + (g.tipo === 'diario' ? 'diário' : 'saída') + ')</span>' +
+        '<button class="dismiss-pending" data-id="' + g.id + '">✓ já lancei</button>' +
+      '</div>';
+    }).join('');
+    var buttons = container.querySelectorAll('.dismiss-pending');
+    for(var i = 0; i < buttons.length; i++){
+      buttons[i].addEventListener('click', function(){
+        var id = this.getAttribute('data-id');
+        savePendingGastos(loadPendingGastos().filter(function(g){ return g.id !== id; }));
+        renderPendingGastos();
+        renderResumo();
+      });
+    }
+  }
+
+  function logGastoEvent(text){
+    addLine('user', text);
+    setState('pensando');
+    busy = true;
+    stopRecognitionForTTS();
+
+    extractFinanceJSON(text, 'gasto').then(function(g){
+      var entry = {
+        id: 'g' + Date.now(),
+        descricao: g.descricao || 'Gasto',
+        valor: Number(g.valor) || 0,
+        data: /^\d{4}-\d{2}-\d{2}$/.test(g.data) ? g.data : todayISO(),
+        tipo: g.tipo === 'diario' ? 'diario' : 'saida'
+      };
+      var list = loadPendingGastos();
+      list.push(entry);
+      savePendingGastos(list);
+
+      var msg = 'Anotei: ' + (entry.tipo === 'diario' ? 'gasto diário' : 'saída') + ' de ' + fmtBRLLocal(entry.valor) + ' em ' + entry.descricao +
+        '. Deixei pendente pra você confirmar no seu app financeiro — ainda não lanço direto lá pra não arriscar mexer nos seus dados de verdade sem você validar antes.';
+      addLine('assistant', msg);
+      speak(msg);
+      renderPendingGastos();
+      renderResumo();
+    }).catch(function(err){
+      var msg = (err && err.message === 'no-key')
+        ? 'Preciso da chave da API pra anotar isso, ' + CONFIG.address + '.'
+        : 'Não consegui identificar os dados desse gasto direito, ' + CONFIG.address + '. Descreve de novo com valor e o que foi?';
+      addLine('assistant', msg);
+      speak(msg);
+    });
+  }
+
+  function renderResumo(){
+    var grid = $('resumo-grid');
+    var rec = receitaSummary();
+    var pendGastos = loadPendingGastos();
+    var metas = NOTES.filter(function(n){ return n.area === 'metas'; });
+    var projetos = NOTES.filter(function(n){ return n.area === 'projetos'; });
+    var areasSet = {};
+    NOTES.forEach(function(n){ areasSet[n.area] = 1; });
+
+    var cards = [
+      {
+        icon: '💰', label: 'Receita do mês',
+        value: rec ? fmtBRLLocal(rec.liquido) : '—',
+        sub: rec ? (rec.meta > 0 ? rec.pct.toFixed(0) + '% da meta' : 'meta não definida') : 'sem dados ainda'
+      },
+      {
+        icon: '🎯', label: 'Metas em destaque',
+        value: metas.length + (metas.length === 1 ? ' meta' : ' metas'),
+        sub: metas.slice(0, 2).map(function(n){ return n.title; }).join(' · ') || '—'
+      },
+      {
+        icon: '📁', label: 'Projetos ativos',
+        value: projetos.length + (projetos.length === 1 ? ' projeto' : ' projetos'),
+        sub: projetos.slice(0, 3).map(function(n){ return n.title; }).join(' · ') || '—'
+      },
+      {
+        icon: '🧠', label: 'Second Brain',
+        value: NOTES.length + ' notas',
+        sub: Object.keys(areasSet).length + ' áreas mapeadas'
+      },
+      {
+        icon: '🧾', label: 'Gastos pendentes',
+        value: String(pendGastos.length),
+        sub: pendGastos.length ? 'revisar no app financeiro' : 'nada pendente'
+      },
+      {
+        icon: '📅', label: 'Agenda',
+        value: '—',
+        sub: 'ainda não conectada'
+      }
+    ];
+
+    grid.innerHTML = cards.map(function(c){
+      return '<div class="resumo-card">' +
+        '<div class="resumo-icon">' + c.icon + '</div>' +
+        '<div class="resumo-label">' + escapeXML(c.label) + '</div>' +
+        '<div class="resumo-value">' + escapeXML(c.value) + '</div>' +
+        '<div class="resumo-sub">' + escapeXML(c.sub) + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function checkVoiceSupport(){
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR) $('voice-warning').hidden = false;
   }
 
   /* ============ ABA CONTEÚDO — geração de roteiro ============ */
@@ -1422,8 +1677,11 @@
 
     initVoices();
     initRecognition();
+    checkVoiceSupport();
     renderGraph();
     renderReceitaWidget();
+    renderPendingGastos();
+    renderResumo();
     renderSlideFields([]);
     loadBrandSettings();
 
@@ -1498,6 +1756,7 @@
       }
       saveNotes();
       renderGraph();
+      renderResumo();
       closeEditor();
     });
 
@@ -1507,6 +1766,7 @@
       REL = REL.filter(function(p){ return p[0] !== editingId && p[1] !== editingId; });
       saveNotes();
       renderGraph();
+      renderResumo();
       closeEditor();
     });
 

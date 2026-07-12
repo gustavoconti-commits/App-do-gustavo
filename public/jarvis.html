@@ -377,7 +377,7 @@
       <h3>Identidade visual (manual de marca)</h3>
       <div class="brand-row">
         <label>Nome<input id="brand-nome" type="text" value="Gustavo Conti"></label>
-        <label>@handle<input id="brand-handle" type="text" placeholder="@seuusuario"></label>
+        <label>@handle<input id="brand-handle" type="text" value="@ogustavoconti" placeholder="@seuusuario"></label>
         <label>Foto de perfil<input id="brand-avatar" type="file" accept="image/*"></label>
         <label class="checkbox-label"><input id="brand-disclaimer" type="checkbox" checked> incluir disclaimer de compliance no fechamento</label>
       </div>
@@ -1567,7 +1567,7 @@
         return;
       }
       var name = $('brand-nome').value.trim() || 'Gustavo Conti';
-      var handle = $('brand-handle').value.trim() || '@seuusuario';
+      var handle = $('brand-handle').value.trim() || '@ogustavoconti';
       var wantDisclaimer = $('brand-disclaimer').checked;
       var opts = { name: name, handle: handle, avatarImg: avatarImgCache };
 

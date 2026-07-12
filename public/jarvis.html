@@ -161,6 +161,55 @@
   .hint{ margin-top:12px; font-family:var(--mono); font-size:11px; color:#3d5a6c; letter-spacing:0.05em; }
   .mode-badge{ font-family:var(--mono); font-size:11px; letter-spacing:0.08em; color:#fbbf24; min-height:14px; margin-bottom:6px; }
 
+  /* ---------- TABS ---------- */
+  .tab-bar{ display:flex; gap:8px; margin-bottom:16px; }
+  .tab-btn{
+    background:var(--panel); border:1px solid var(--border); color:var(--text-dim);
+    padding:9px 18px; border-radius:8px; font-family:var(--mono); font-size:12px; letter-spacing:0.05em;
+  }
+  .tab-btn.active{ border-color:var(--theme); color:var(--theme); box-shadow:0 0 12px rgba(0,212,255,0.3); }
+
+  /* ---------- CONTEUDO ---------- */
+  .content-section{ display:flex; flex-direction:column; gap:20px; }
+  .content-brief, .content-slides-editor, .content-brand-settings{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px;
+  }
+  .content-brief h3, .content-slides-editor h3, .content-brand-settings h3{
+    font-family:var(--mono); font-size:14px; margin:0 0 12px; color:var(--text);
+  }
+  #content-brief-input, #paste-roteiro{
+    width:100%; background:#020407; border:1px solid var(--border); color:var(--text);
+    padding:10px; border-radius:8px; font-size:13px; resize:vertical; margin-bottom:10px;
+  }
+  .primary-btn{
+    background:transparent; border:1px solid var(--theme); color:var(--theme);
+    padding:10px 18px; border-radius:8px; font-size:12px; letter-spacing:0.05em;
+  }
+  .primary-btn:hover{ background:rgba(0,212,255,0.12); }
+  .primary-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .content-chat-log{ margin-top:14px; max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+  .content-log-line{ font-size:13px; white-space:pre-wrap; }
+  .log-user{ color:var(--text-dim); }
+  .log-assistant{ color:var(--text); }
+
+  #slide-fields{ display:flex; flex-direction:column; gap:14px; }
+  .slide-field label{ display:block; font-size:11px; color:var(--theme-dim); margin-bottom:5px; font-family:var(--mono); }
+  .slide-field textarea{
+    width:100%; background:#020407; border:1px solid var(--border); color:var(--text);
+    padding:9px 10px; border-radius:8px; font-size:13px; resize:vertical;
+  }
+
+  .brand-row{ display:flex; flex-wrap:wrap; gap:14px; align-items:end; margin-bottom:14px; }
+  .brand-row label{ display:flex; flex-direction:column; gap:5px; font-size:11px; color:var(--text-dim); font-family:var(--mono); }
+  .brand-row input[type=text]{
+    background:#020407; border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:6px; font-size:13px;
+  }
+  .brand-row label.checkbox-label{ flex-direction:row; align-items:center; gap:8px; }
+
+  .content-cards-preview{ display:flex; flex-wrap:wrap; gap:16px; }
+  .card-preview-item{ display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .card-preview-item canvas{ width:220px; height:275px; border-radius:8px; border:1px solid var(--border); background:#fff; }
+
   /* ---------- RECEITA WIDGET ---------- */
   .receita-section{
     margin-top:14px; padding:14px 16px; background:var(--panel); border:1px solid var(--border);
@@ -257,6 +306,12 @@
       <span class="key-status" id="key-status"></span>
     </header>
 
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="assistente">🤖 Assistente</button>
+      <button class="tab-btn" data-tab="conteudo">📝 Conteúdo</button>
+    </div>
+
+  <div id="tab-assistente">
     <section class="orb-section">
       <div class="orb-wrap" id="orb-wrap" title="clique pra falar">
         <div class="orb-ring ring-1"></div>
@@ -297,6 +352,41 @@
       <div id="graph-container" class="graph-container"></div>
       <div id="legend" class="legend"></div>
     </section>
+  </div>
+
+  <section class="content-section" id="tab-conteudo" hidden>
+    <div class="content-brief">
+      <h3>Gerar roteiro com o Jarvis</h3>
+      <textarea id="content-brief-input" rows="3" placeholder="Descreva o tema/ideia do conteúdo (ex: cliente que descobriu tarde que precisava de conta CNR)..."></textarea>
+      <button id="content-generate-btn" class="primary-btn">Gerar roteiro (9 slides)</button>
+      <div class="content-chat-log" id="content-chat-log"></div>
+    </div>
+
+    <div class="content-brief">
+      <h3>Ou cole um roteiro pronto pra validar</h3>
+      <textarea id="paste-roteiro" rows="4" placeholder="Cole aqui o roteiro numerado (1) capa... 2) subcapa... etc.)"></textarea>
+      <button id="parse-roteiro-btn" class="primary-btn">Carregar nos campos abaixo</button>
+    </div>
+
+    <div class="content-slides-editor">
+      <h3>Roteiro — valide e edite cada slide</h3>
+      <div id="slide-fields"></div>
+    </div>
+
+    <div class="content-brand-settings">
+      <h3>Identidade visual (manual de marca)</h3>
+      <div class="brand-row">
+        <label>Nome<input id="brand-nome" type="text" value="Gustavo Conti"></label>
+        <label>@handle<input id="brand-handle" type="text" placeholder="@seuusuario"></label>
+        <label>Foto de perfil<input id="brand-avatar" type="file" accept="image/*"></label>
+        <label class="checkbox-label"><input id="brand-disclaimer" type="checkbox" checked> incluir disclaimer de compliance no fechamento</label>
+      </div>
+      <button id="generate-cards-btn" class="primary-btn">Gerar cards (design)</button>
+    </div>
+
+    <div class="content-cards-preview" id="cards-preview"></div>
+    <button id="download-all-btn" class="primary-btn" hidden>Baixar todos os slides</button>
+  </section>
   </div>
 
   <div id="note-editor" class="modal" hidden>
@@ -845,6 +935,300 @@
       '<span class="receita-meta">' + escapeXML(pctTxt) + '</span>';
   }
 
+  /* ============ ABA CONTEÚDO — geração de roteiro ============ */
+  var contentHistory = [];
+  var avatarImgCache = null;
+
+  var SLIDE_LABELS = [
+    'Capa — gancho real e específico',
+    'Subcapa — generalização do caso',
+    'CTA de salvar',
+    'Situação / problema (o "antes")',
+    'A virada',
+    'Mecanismo + prova',
+    'Reforço de relevância',
+    'Contraste Antes / Depois',
+    'Fechamento (CTA final + disclaimer se houver)'
+  ];
+
+  function appendContentLog(who, text){
+    var log = $('content-chat-log');
+    var div = document.createElement('div');
+    div.className = 'content-log-line ' + (who === 'user' ? 'log-user' : 'log-assistant');
+    div.textContent = (who === 'user' ? '🗣 ' : '🤖 ') + text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function parseRoteiro(text){
+    var lines = text.split(/\n/);
+    var slides = new Array(9).fill('');
+    var currentIdx = null;
+    var current = [];
+    var re = /^\s*(?:slide\s*)?(\d{1,2})[\).:]\s*/i;
+
+    function flush(){
+      if(currentIdx !== null && currentIdx >= 1 && currentIdx <= 9){
+        slides[currentIdx - 1] = current.join('\n').trim();
+      }
+    }
+
+    lines.forEach(function(line){
+      var m = line.match(re);
+      if(m){
+        flush();
+        currentIdx = parseInt(m[1], 10);
+        current = [line.replace(re, '').trim()];
+      } else if(currentIdx !== null){
+        current.push(line);
+      }
+    });
+    flush();
+    return slides;
+  }
+
+  function renderSlideFields(texts){
+    var container = $('slide-fields');
+    container.innerHTML = '';
+    for(var i = 0; i < 9; i++){
+      var wrap = document.createElement('div');
+      wrap.className = 'slide-field';
+      var label = document.createElement('label');
+      label.textContent = 'Slide ' + (i + 1) + ' · ' + SLIDE_LABELS[i];
+      var textarea = document.createElement('textarea');
+      textarea.className = 'slide-input';
+      textarea.rows = 3;
+      textarea.dataset.idx = i;
+      textarea.value = texts[i] || '';
+      wrap.appendChild(label);
+      wrap.appendChild(textarea);
+      container.appendChild(wrap);
+    }
+  }
+
+  function sendContentBrief(userText){
+    appendContentLog('user', userText);
+    var key = '';
+    try{ key = localStorage.getItem('anthropic_key') || ''; }catch(e){}
+    if(!key){
+      appendContentLog('assistant', 'Preciso da chave da API — cola ela na aba Assistente, no campo API key (fica salva pros dois lados).');
+      return;
+    }
+    contentHistory.push({ role:'user', content: userText });
+    $('content-generate-btn').disabled = true;
+    $('content-generate-btn').textContent = 'Enviar resposta';
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: CONFIG.model,
+        max_tokens: 900,
+        system: buildCarrosselSystemPrompt(),
+        messages: contentHistory
+      })
+    }).then(function(res){
+      if(!res.ok){
+        appendContentLog('assistant', 'Deu erro na conexão — confere a chave da API.');
+        throw new Error('http-error');
+      }
+      return res.json();
+    }).then(function(data){
+      var text = (data && data.content && data.content[0] && data.content[0].text) || '';
+      var done = text.indexOf('[[CARROSSEL_DONE]]') !== -1;
+      text = text.replace('[[CARROSSEL_DONE]]', '').trim();
+      contentHistory.push({ role:'assistant', content: text });
+      appendContentLog('assistant', text);
+      var slides = parseRoteiro(text);
+      if(slides.some(function(s){ return s; })) renderSlideFields(slides);
+      if(done) $('content-generate-btn').textContent = 'Gerar roteiro (9 slides)';
+    }).catch(function(err){
+      if(err && err.message !== 'http-error'){
+        appendContentLog('assistant', 'Não consegui conectar à internet agora.');
+      }
+    }).finally(function(){
+      $('content-generate-btn').disabled = false;
+    });
+  }
+
+  /* ---- cards visuais (Canvas, spec do playbook de carrossel) ---- */
+  var BRAND = { bg:'#FFFFFF', text:'#111111', gray:'#6E6E73', verified:'#1D9BF0', navy:'#0D1B33', gold:'#C4A260' };
+  var DISCLAIMER_TEXT = 'Conteúdo educativo, não é recomendação de investimento. Condições tributárias variam por caso — consulte sempre um especialista.';
+
+  function initialsOf(name){
+    return (name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(function(w){ return w[0].toUpperCase(); }).join('');
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function drawVerifiedBadge(ctx, x, y){
+    ctx.save();
+    ctx.fillStyle = BRAND.verified;
+    ctx.beginPath();
+    ctx.arc(x + 11, y + 11, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x + 5, y + 11);
+    ctx.lineTo(x + 9, y + 16);
+    ctx.lineTo(x + 18, y + 6);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawCounterPill(ctx, rightX, topY, n, total){
+    var label = n + '/' + total;
+    ctx.font = '400 32px Arial, Helvetica, sans-serif';
+    var textW = ctx.measureText(label).width;
+    var padX = 22, h = 54;
+    var w = textW + padX * 2;
+    var x = rightX - w, y = topY;
+    ctx.fillStyle = BRAND.gray;
+    roundRect(ctx, x, y, w, h, h / 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x + w / 2, y + h / 2 + 2);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function drawWrappedBody(ctx, text, x, y, maxWidth, disclaimerText){
+    var paragraphs = text.split(/\n\s*\n/).map(function(p){ return p.trim(); }).filter(Boolean);
+    if(!paragraphs.length) paragraphs = text.split(/\n/).map(function(s){ return s.trim(); }).filter(Boolean);
+    var lineHeight = 62, paraGap = 34;
+    var cursorY = y;
+    paragraphs.forEach(function(p){
+      var isHeader = /^[^\n:]{2,30}:\s*$/.test(p) || (/^[^\n:]{2,30}:/.test(p) && p.length < 40);
+      ctx.font = (isHeader ? 'italic 700 46px' : '400 46px') + ' Arial, Helvetica, sans-serif';
+      ctx.fillStyle = BRAND.text;
+      var words = p.split(/\s+/);
+      var line = '';
+      words.forEach(function(word){
+        var test = line ? line + ' ' + word : word;
+        if(ctx.measureText(test).width > maxWidth && line){
+          ctx.fillText(line, x, cursorY);
+          cursorY += lineHeight;
+          line = word;
+        } else {
+          line = test;
+        }
+      });
+      if(line){ ctx.fillText(line, x, cursorY); cursorY += lineHeight; }
+      cursorY += paraGap;
+    });
+    if(disclaimerText){
+      cursorY += 10;
+      ctx.font = '400 26px Arial, Helvetica, sans-serif';
+      ctx.fillStyle = BRAND.gray;
+      var words2 = disclaimerText.split(/\s+/);
+      var line2 = '';
+      words2.forEach(function(word){
+        var test2 = line2 ? line2 + ' ' + word : word;
+        if(ctx.measureText(test2).width > maxWidth && line2){
+          ctx.fillText(line2, x, cursorY);
+          cursorY += 36;
+          line2 = word;
+        } else {
+          line2 = test2;
+        }
+      });
+      if(line2) ctx.fillText(line2, x, cursorY);
+    }
+  }
+
+  function renderSlideCanvas(idx, total, slideText, opts){
+    var W = 1080, H = 1350, PAD = 72;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = BRAND.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    var avatarX = PAD + 60, avatarY = PAD + 60, avatarR = 60;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+    if(opts.avatarImg){
+      ctx.drawImage(opts.avatarImg, avatarX - avatarR, avatarY - avatarR, avatarR * 2, avatarR * 2);
+    } else {
+      ctx.fillStyle = BRAND.navy;
+      ctx.fillRect(avatarX - avatarR, avatarY - avatarR, avatarR * 2, avatarR * 2);
+      ctx.fillStyle = '#F4EEE2';
+      ctx.font = '600 46px Arial, Helvetica, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(initialsOf(opts.name), avatarX, avatarY + 2);
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+    }
+    ctx.restore();
+
+    var nameX = avatarX + avatarR + 22;
+    var nameY = PAD + 42;
+    ctx.fillStyle = BRAND.text;
+    ctx.font = '700 42px Arial, Helvetica, sans-serif';
+    ctx.fillText(opts.name, nameX, nameY);
+    var nameWidth = ctx.measureText(opts.name).width;
+    drawVerifiedBadge(ctx, nameX + nameWidth + 12, nameY - 24);
+
+    ctx.fillStyle = BRAND.gray;
+    ctx.font = '400 34px Arial, Helvetica, sans-serif';
+    ctx.fillText(opts.handle, nameX, nameY + 42);
+
+    drawCounterPill(ctx, W - PAD, PAD, idx + 1, total);
+
+    var bodyX = PAD;
+    var bodyY = avatarY + avatarR + 60;
+    var bodyWidth = W - PAD * 2;
+    drawWrappedBody(ctx, slideText, bodyX, bodyY, bodyWidth, opts.disclaimer);
+
+    return canvas;
+  }
+
+  function downloadCanvas(canvas, filename){
+    canvas.toBlob(function(blob){
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  function loadBrandSettings(){
+    try{
+      var savedHandle = localStorage.getItem('jarvis_handle');
+      if(savedHandle) $('brand-handle').value = savedHandle;
+      var savedName = localStorage.getItem('jarvis_brand_name');
+      if(savedName) $('brand-nome').value = savedName;
+      var savedAvatar = localStorage.getItem('jarvis_avatar');
+      if(savedAvatar){
+        var img = new Image();
+        img.onload = function(){ avatarImgCache = img; };
+        img.src = savedAvatar;
+      }
+    }catch(e){}
+  }
+
   /* ============ SECOND BRAIN — GRAFO ============ */
   function connectionsCount(id){
     return REL.filter(function(p){ return p[0] === id || p[1] === id; }).length;
@@ -1040,6 +1424,8 @@
     initRecognition();
     renderGraph();
     renderReceitaWidget();
+    renderSlideFields([]);
+    loadBrandSettings();
 
     var savedKey = '';
     try{ savedKey = localStorage.getItem('anthropic_key') || ''; }catch(e){}
@@ -1125,6 +1511,94 @@
     });
 
     $('edit-cancel').addEventListener('click', closeEditor);
+
+    /* ---- abas ---- */
+    var tabButtons = document.querySelectorAll('.tab-btn');
+    for(var t = 0; t < tabButtons.length; t++){
+      tabButtons[t].addEventListener('click', function(){
+        for(var u = 0; u < tabButtons.length; u++) tabButtons[u].classList.remove('active');
+        this.classList.add('active');
+        var tab = this.dataset.tab;
+        $('tab-assistente').hidden = tab !== 'assistente';
+        $('tab-conteudo').hidden = tab !== 'conteudo';
+      });
+    }
+
+    /* ---- aba conteudo ---- */
+    $('content-generate-btn').addEventListener('click', function(){
+      var v = $('content-brief-input').value.trim();
+      if(!v) return;
+      $('content-brief-input').value = '';
+      sendContentBrief(v);
+    });
+
+    $('parse-roteiro-btn').addEventListener('click', function(){
+      var v = $('paste-roteiro').value.trim();
+      if(!v) return;
+      renderSlideFields(parseRoteiro(v));
+    });
+
+    $('brand-handle').addEventListener('change', function(){
+      try{ localStorage.setItem('jarvis_handle', $('brand-handle').value.trim()); }catch(e){}
+    });
+    $('brand-nome').addEventListener('change', function(){
+      try{ localStorage.setItem('jarvis_brand_name', $('brand-nome').value.trim()); }catch(e){}
+    });
+    $('brand-avatar').addEventListener('change', function(e){
+      var file = e.target.files[0];
+      if(!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        var img = new Image();
+        img.onload = function(){
+          avatarImgCache = img;
+          try{ localStorage.setItem('jarvis_avatar', ev.target.result); }catch(err){}
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    $('generate-cards-btn').addEventListener('click', function(){
+      var inputs = document.querySelectorAll('.slide-input');
+      var texts = Array.prototype.map.call(inputs, function(el){ return el.value.trim(); });
+      if(texts.every(function(t){ return !t; })){
+        alert('Preencha ao menos um slide antes de gerar os cards.');
+        return;
+      }
+      var name = $('brand-nome').value.trim() || 'Gustavo Conti';
+      var handle = $('brand-handle').value.trim() || '@seuusuario';
+      var wantDisclaimer = $('brand-disclaimer').checked;
+      var opts = { name: name, handle: handle, avatarImg: avatarImgCache };
+
+      var preview = $('cards-preview');
+      preview.innerHTML = '';
+      texts.forEach(function(txt, i){
+        if(!txt) return;
+        var slideOpts = Object.assign({}, opts, { disclaimer: (wantDisclaimer && i === 8) ? DISCLAIMER_TEXT : null });
+        var canvas = renderSlideCanvas(i, 9, txt, slideOpts);
+        var card = document.createElement('div');
+        card.className = 'card-preview-item';
+        var dlBtn = document.createElement('button');
+        dlBtn.textContent = 'Baixar slide ' + (i + 1);
+        dlBtn.className = 'ctrl-btn small';
+        dlBtn.style.width = 'auto';
+        dlBtn.style.borderRadius = '8px';
+        dlBtn.style.padding = '6px 12px';
+        dlBtn.addEventListener('click', function(){ downloadCanvas(canvas, 'slide-' + (i + 1) + '.png'); });
+        card.appendChild(canvas);
+        card.appendChild(dlBtn);
+        preview.appendChild(card);
+      });
+      $('download-all-btn').hidden = preview.children.length === 0;
+    });
+
+    $('download-all-btn').addEventListener('click', function(){
+      var canvases = document.querySelectorAll('#cards-preview canvas');
+      canvases.forEach(function(c, i){
+        setTimeout(function(){ downloadCanvas(c, 'slide-' + (i + 1) + '.png'); }, i * 200);
+      });
+    });
   });
 
 })();

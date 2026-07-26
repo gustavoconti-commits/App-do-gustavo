@@ -9,8 +9,17 @@
 
 <!--
   TIKTOK PIXEL
-  Inserir aqui o snippet oficial do TikTok Pixel (Events Manager > Web > Pixel > Install manually).
-  Ainda não configurado — placeholder até termos o Pixel ID definitivo.
+  Vai rodar anúncios pagos no TikTok — falta colar o código-base aqui.
+  Passo a passo: TikTok Ads Manager > Events Manager > Web Events >
+  criar Pixel (configuração manual) > copiar o código-base e colar
+  neste lugar, substituindo este comentário.
+  Importante: como o checkout acontece no domínio do Hotmart, o Pixel
+  aqui só enxerga visita e clique no CTA — para rastrear a compra em
+  si, conecte o mesmo Pixel ID também no Hotmart (Painel do Produtor
+  > Pixels de Rastreamento).
+  Depois de colar o código, ative o disparo do evento InitiateCheckout
+  no clique do CTA — já deixei o gancho pronto no <script> no final
+  da página (função trackInitiateCheckout).
 -->
 
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -492,17 +501,11 @@
       prévio dos produtos comercializados em sua plataforma, nem avalia a técnica e a experiência
       de quem os produz.
     </p>
-    <!--
-      PENDÊNCIA DE COMPLIANCE (ver brief, item 1): validar com o compliance da
-      Sacre/BTG a redação final do disclaimer acima antes de publicar esta página.
-      Números de clientes/AUM/NPS da Sacre usados na seção de autoridade também
-      devem ser confirmados/atualizados pela Sacre antes da publicação.
-    -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs">
       <p>&copy; <span id="ano"></span> Sacre Educação Financeira LTDA · CNPJ 45.091.223/0001-40</p>
       <div class="flex gap-5">
-        <a href="#" class="hover:text-dourado transition-colors">Termos de Uso</a>
-        <a href="#" class="hover:text-dourado transition-colors">Política de Privacidade</a>
+        <a href="./termos.html" class="hover:text-dourado transition-colors">Termos de Uso</a>
+        <a href="./privacidade.html" class="hover:text-dourado transition-colors">Política de Privacidade</a>
       </div>
     </div>
   </div>
@@ -529,6 +532,18 @@
 
   document.querySelectorAll('.js-checkout-link').forEach((link) => {
     link.href = buildCheckoutHref()
+  })
+
+  // Dispara o evento InitiateCheckout do TikTok Pixel no clique do CTA.
+  // Não faz nada até o código-base do Pixel (ttq) ser instalado no <head>.
+  function trackInitiateCheckout() {
+    if (typeof ttq !== 'undefined') {
+      ttq.track('InitiateCheckout')
+    }
+  }
+
+  document.querySelectorAll('.js-checkout-link').forEach((link) => {
+    link.addEventListener('click', trackInitiateCheckout)
   })
 
   // Accordion do FAQ

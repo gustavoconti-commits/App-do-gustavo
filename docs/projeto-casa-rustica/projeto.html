@@ -1,0 +1,792 @@
+<title>Residência Rústica Colonial — Anteprojeto</title>
+<meta name="description" content="Estudo preliminar: memorial descritivo, implantação, planta baixa, corte e fachadas de residência térrea em estilo rústico colonial brasileiro." />
+
+<style>
+  :root{
+    --paper:#efe7d8;
+    --paper-2:#e6dcc8;
+    --line:#d8caac;
+    --ink:#2e2013;
+    --ink-soft:#5c4a38;
+    --ink-faint:#8a7864;
+    --terracota:#b5472a;
+    --terracota-soft:#c97256;
+    --tijolo:#9c6b45;
+    --verde:#5c6b48;
+    --paper-rgb:239,231,216;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#241c15;
+      --paper-2:#2c2219;
+      --line:#43362533;
+      --line:#4a3a27;
+      --ink:#ede2d0;
+      --ink-soft:#c2af97;
+      --ink-faint:#8f7c65;
+      --terracota:#e07a52;
+      --terracota-soft:#c9612f;
+      --tijolo:#c99569;
+      --verde:#93a279;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#241c15; --paper-2:#2c2219; --line:#4a3a27;
+    --ink:#ede2d0; --ink-soft:#c2af97; --ink-faint:#8f7c65;
+    --terracota:#e07a52; --terracota-soft:#c9612f; --tijolo:#c99569; --verde:#93a279;
+  }
+  :root[data-theme="light"]{
+    --paper:#efe7d8; --paper-2:#e6dcc8; --line:#d8caac;
+    --ink:#2e2013; --ink-soft:#5c4a38; --ink-faint:#8a7864;
+    --terracota:#b5472a; --terracota-soft:#c97256; --tijolo:#9c6b45; --verde:#5c6b48;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--terracota); color:var(--paper); }
+
+  .sans{ font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; }
+  .mono{ font-family:"SF Mono","Cascadia Code","Consolas","Menlo",monospace; font-variant-numeric:tabular-nums; }
+
+  .page{ max-width:880px; margin:0 auto; padding:0 24px 96px; }
+
+  /* ---------- title stamp ---------- */
+  .stamp{
+    margin-top:56px;
+    padding:28px 32px 24px;
+    border:1.5px solid var(--ink);
+    position:relative;
+    background:
+      linear-gradient(var(--paper-2),var(--paper-2)) padding-box;
+  }
+  .stamp::before{
+    content:"";
+    position:absolute; inset:6px;
+    border:1px solid var(--terracota);
+    pointer-events:none;
+  }
+  .stamp-eyebrow{
+    font-family:inherit; font-family:-apple-system,"Segoe UI",sans-serif;
+    text-transform:uppercase; letter-spacing:.12em; font-size:11.5px;
+    color:var(--terracota); font-weight:600;
+  }
+  h1.stamp-title{
+    font-size:clamp(28px,4.2vw,38px);
+    margin:8px 0 6px;
+    text-wrap:balance;
+    letter-spacing:.005em;
+  }
+  .stamp-sub{
+    color:var(--ink-soft);
+    font-size:16px;
+    margin:0 0 18px;
+    font-style:italic;
+  }
+  .stamp-meta{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:12px 24px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .stamp-meta .sans{
+    text-transform:uppercase; font-size:10px; letter-spacing:.1em; color:var(--ink-faint);
+    display:block; margin-bottom:3px;
+  }
+  .stamp-meta .val{ font-size:15px; }
+
+  /* ---------- sheet index ---------- */
+  .index{
+    display:flex; flex-wrap:wrap; gap:8px;
+    margin:28px 0 0;
+    padding:0; list-style:none;
+  }
+  .index a{
+    display:block;
+    font-family:-apple-system,"Segoe UI",sans-serif;
+    font-size:12.5px; letter-spacing:.03em;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border:1px solid var(--line);
+    padding:7px 12px;
+    transition:border-color .15s, color .15s;
+  }
+  .index a:hover, .index a:focus-visible{ border-color:var(--terracota); color:var(--terracota); }
+
+  /* ---------- sheet sections ---------- */
+  .sheet{ margin-top:64px; scroll-margin-top:24px; }
+  .sheet-head{
+    display:flex; align-items:baseline; gap:14px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:10px; margin-bottom:22px;
+  }
+  .sheet-num{
+    font-family:"SF Mono","Cascadia Code",monospace;
+    font-size:13px; color:var(--paper);
+    background:var(--terracota);
+    padding:3px 8px;
+    white-space:nowrap;
+  }
+  .sheet-head h2{
+    font-size:22px; margin:0; font-weight:normal; letter-spacing:.01em;
+  }
+
+  .lede{ font-size:17px; color:var(--ink-soft); max-width:62ch; }
+
+  h3.sub{
+    font-size:14px; text-transform:uppercase; letter-spacing:.08em;
+    font-family:-apple-system,"Segoe UI",sans-serif; font-weight:600;
+    color:var(--terracota);
+    margin:28px 0 10px;
+  }
+  p{ max-width:66ch; }
+  ul.plain{ padding-left:1.1em; margin:0 0 1em; max-width:62ch; }
+  ul.plain li{ margin-bottom:6px; }
+
+  .note{
+    border-left:3px solid var(--terracota);
+    padding:4px 0 4px 16px;
+    color:var(--ink-soft);
+    font-size:14.5px;
+    max-width:60ch;
+  }
+
+  /* ---------- drawing frame ---------- */
+  figure.drawing{
+    margin:26px 0;
+    border:1px solid var(--ink);
+    background:var(--paper-2);
+  }
+  .drawing-bar{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:-apple-system,"Segoe UI",sans-serif;
+    font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-faint);
+    padding:9px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .drawing-bar b{ color:var(--ink); font-weight:600; letter-spacing:.03em; }
+  .drawing-body{ overflow-x:auto; padding:14px; }
+  .drawing-body svg{ display:block; width:100%; height:auto; min-width:480px; }
+  figcaption.cap{
+    font-family:-apple-system,"Segoe UI",sans-serif;
+    font-size:12.5px; color:var(--ink-soft);
+    padding:0 14px 14px;
+    max-width:70ch;
+  }
+
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:640px){ .grid-2{ grid-template-columns:1fr; } }
+
+  /* legend chips */
+  .legend{ display:flex; flex-wrap:wrap; gap:14px; margin:14px 0 0; font-family:-apple-system,"Segoe UI",sans-serif; font-size:12px; color:var(--ink-soft); }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .legend i{ width:12px; height:12px; display:inline-block; border:1px solid var(--ink-faint); }
+
+  /* ---------- area table ---------- */
+  table.areas{
+    width:100%; border-collapse:collapse;
+    font-family:-apple-system,"Segoe UI",sans-serif;
+    font-size:14px;
+  }
+  table.areas th, table.areas td{
+    text-align:left; padding:9px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  table.areas th{
+    text-transform:uppercase; font-size:10.5px; letter-spacing:.07em; color:var(--ink-faint);
+    font-weight:600;
+  }
+  table.areas td.num, table.areas th.num{ text-align:right; font-family:"SF Mono","Cascadia Code",monospace; font-variant-numeric:tabular-nums; }
+  table.areas tr.total td{ border-top:2px solid var(--ink); border-bottom:none; font-weight:700; }
+  table.areas tr.group td{ padding-top:20px; color:var(--terracota); font-family:-apple-system,sans-serif; text-transform:uppercase; font-size:11px; letter-spacing:.06em; border-bottom:none; }
+
+  footer.disclaimer{
+    margin-top:72px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-family:-apple-system,"Segoe UI",sans-serif;
+    font-size:12.5px;
+    color:var(--ink-faint);
+    max-width:70ch;
+  }
+
+  a{ color:var(--terracota); }
+
+  :focus-visible{ outline:2px solid var(--terracota); outline-offset:2px; }
+</style>
+
+<!-- shared SVG defs: textures reused by every drawing -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <pattern id="telha" width="22" height="13" patternUnits="userSpaceOnUse">
+    <rect width="22" height="13" fill="var(--terracota)"/>
+    <path d="M0,13 a11,10 0 0 1 22,0 z" fill="var(--terracota-soft)" opacity=".55"/>
+    <path d="M-11,13 a11,10 0 0 1 22,0 z" fill="var(--terracota-soft)" opacity=".55"/>
+  </pattern>
+  <pattern id="tijolo" width="24" height="12" patternUnits="userSpaceOnUse">
+    <rect width="24" height="12" fill="var(--tijolo)"/>
+    <line x1="0" y1="0" x2="24" y2="0" stroke="var(--ink)" stroke-opacity=".35" stroke-width="1"/>
+    <line x1="12" y1="0" x2="12" y2="6" stroke="var(--ink)" stroke-opacity=".35" stroke-width="1"/>
+    <line x1="0" y1="6" x2="24" y2="6" stroke="var(--ink)" stroke-opacity=".35" stroke-width="1"/>
+    <line x1="0" y1="6" x2="0" y2="12" stroke="var(--ink)" stroke-opacity=".35" stroke-width="1"/>
+    <line x1="24" y1="6" x2="24" y2="12" stroke="var(--ink)" stroke-opacity=".35" stroke-width="1"/>
+  </pattern>
+  <pattern id="grama" width="16" height="10" patternUnits="userSpaceOnUse">
+    <rect width="16" height="10" fill="var(--verde)" opacity=".18"/>
+    <path d="M2,10 L2,5 M6,10 L6,4 M10,10 L10,6 M14,10 L14,5" stroke="var(--verde)" stroke-width="1" opacity=".5"/>
+  </pattern>
+  <pattern id="piso" width="18" height="18" patternUnits="userSpaceOnUse">
+    <rect width="18" height="18" fill="none" stroke="var(--ink-faint)" stroke-width=".6" opacity=".5"/>
+  </pattern>
+</defs>
+</svg>
+
+<div class="page">
+
+  <div class="stamp">
+    <span class="stamp-eyebrow sans">Estudo preliminar &middot; Anteprojeto arquitetônico</span>
+    <h1 class="stamp-title">Residência térrea &mdash; rústico colonial brasileiro</h1>
+    <p class="stamp-sub">Telhado de telha colonial, varanda em arcos, base de tijolo aparente e área social integrada aberta para os fundos.</p>
+    <div class="stamp-meta sans">
+      <div><span>Terreno</span><span class="val mono">600,0 m²</span></div>
+      <div><span>Área coberta</span><span class="val mono">≈ 226 m²</span></div>
+      <div><span>Pavimentos</span><span class="val">Térreo (1 pav.)</span></div>
+      <div><span>Dormitórios</span><span class="val">4 (1 suíte + 3)</span></div>
+      <div><span>Vagas</span><span class="val">2, cobertas</span></div>
+      <div><span>Data</span><span class="val mono">26/07/2026</span></div>
+    </div>
+    <ul class="index">
+      <li><a href="#memorial">PR-01 Memorial</a></li>
+      <li><a href="#implantacao">PR-02 Implantação</a></li>
+      <li><a href="#planta">PR-03 Planta baixa</a></li>
+      <li><a href="#corte">PR-04 Corte</a></li>
+      <li><a href="#fachadas">PR-05 Fachadas</a></li>
+      <li><a href="#areas">PR-06 Quadro de áreas</a></li>
+    </ul>
+  </div>
+
+  <!-- ================= PR-01 MEMORIAL ================= -->
+  <section class="sheet" id="memorial">
+    <div class="sheet-head"><span class="sheet-num">PR&#8209;01</span><h2>Memorial descritivo</h2></div>
+    <p class="lede">Casa térrea de partido rústico/colonial, pensada para um terreno de 600&nbsp;m², com garagem coberta na frente, grande área social integrada com pé-direito alto e fundo de lote reservado a um espaço simples de convivência.</p>
+
+    <h3 class="sub">Partido arquitetônico</h3>
+    <p>O projeto busca a linguagem das antigas casas de fazenda e vilas coloniais brasileiras &mdash; o oposto do volume liso e "caixa" sem cobertura aparente. Isso se traduz em quatro decisões de desenho que se repetem em todas as fachadas:</p>
+    <ul class="plain">
+      <li><b>Cobertura protagonista</b>: telha cerâmica colonial, beiral generoso (0,80&ndash;1,00&nbsp;m) e estrutura de madeira aparente (tesouras e vigas) vista por baixo do beiral e no interior da sala.</li>
+      <li><b>Arcos</b> nas varandas, no acesso principal e em parte das janelas &mdash; elemento que substitui as linhas retas do estilo minimalista.</li>
+      <li><b>Base rústica</b>: pilastras e platibanda baixa em tijolo aparente (ou pedra), sem pintura, contrastando com a parede branca rebocada.</li>
+      <li><b>Cor</b>: reboco liso branco como fundo, com esquadrias, uma parede de destaque e uma chaminé decorativa em vermelho terracota.</li>
+    </ul>
+
+    <h3 class="sub">Implantação e paisagismo</h3>
+    <p>A casa é recuada da frente do lote, abrindo espaço para um jardim de acesso. A garagem fica coberta, integrada ao volume principal, com acesso coberto até a varanda de entrada &mdash; ninguém atravessa chuva entre o carro e a porta. Nos fundos, em vez de piscina ou estruturas elaboradas, um terraço simples recebe mesa, cadeiras ou rede, funcionando como extensão direta da sala através da porta de correr.</p>
+
+    <h3 class="sub">Programa de necessidades</h3>
+    <ul class="plain">
+      <li><b>Área social integrada</b> &mdash; sala de estar e cozinha em ambiente único e amplo, com cooktop e churrasqueira embutidos numa bancada contínua (sem ilha central), e porta de vidro de correr tipo camarão que abre por completo para o terraço dos fundos.</li>
+      <li><b>Suíte do casal</b> &mdash; quarto, banheiro privativo e closet.</li>
+      <li><b>3 dormitórios</b> compartilhando um banheiro social.</li>
+      <li><b>Lavabo</b> de visitas junto à área social/fundos, para uso de quem está na sala ou no terraço.</li>
+      <li><b>Garagem coberta</b> para 2 carros, com acesso direto à área social.</li>
+    </ul>
+
+    <h3 class="sub">Materiais e acabamentos</h3>
+    <ul class="plain">
+      <li><b>Cobertura</b>: telha cerâmica colonial (canal), estrutura em madeira tratada aparente, forro de madeira apenas nos ambientes de pé-direito baixo.</li>
+      <li><b>Paredes</b>: reboco liso pintado de branco; uma parede de destaque (ex.: fundo da lareira/chaminé ou testeira da varanda) em terracota.</li>
+      <li><b>Esquadrias</b>: janelas e portas com vergas em arco ou meia-arco, marcos em madeira ou metal pintado em terracota.</li>
+      <li><b>Colunas e base</b>: pilastras da varanda e da garagem em tijolo aparente (ou pedra), sem pintura.</li>
+      <li><b>Pisos externos</b>: varanda frontal e terraço de fundos em cerâmica rústica ou cimento queimado.</li>
+    </ul>
+
+    <h3 class="sub">Conforto ambiental</h3>
+    <p>A área social recebe ventilação e iluminação cruzada: aberturas na varanda frontal (arcos) e a porta de correr integral nos fundos garantem fluxo de ar de um lado a outro do ambiente. O pé-direito elevado sobre a sala (~4,5&ndash;5,0&nbsp;m ao cume, contra ~2,70&nbsp;m nos dormitórios) reforça a sensação de amplitude e ajuda a dissipar calor no volume mais usado da casa. Recomenda-se implantar a casa de modo que a fachada social não receba sol direto da tarde (ver indicação solar na implantação, PR&#8209;02); a orientação final deve ser ajustada à geometria real do lote.</p>
+
+    <h3 class="sub">Observações técnicas e próximas etapas</h3>
+    <p class="note">Este documento é um estudo preliminar/conceitual (anteprojeto), com plantas e cortes esquemáticos para orientar as decisões de estilo, programa e implantação. Ele não substitui o projeto executivo: dimensionamento estrutural (madeiramento do telhado, fundações), projetos complementares (elétrico, hidrossanitário, drenagem pluvial) e a aprovação junto à prefeitura (alvará de construção) exigem responsável técnico habilitado (arquiteto ou engenheiro civil com registro CAU/CREA e ART/RRT). Os números de área e as medidas aqui apresentados são de referência e devem ser conferidos e ajustados por esse profissional antes da execução.</p>
+  </section>
+
+  <!-- ================= PR-02 IMPLANTAÇÃO ================= -->
+  <section class="sheet" id="implantacao">
+    <div class="sheet-head"><span class="sheet-num">PR&#8209;02</span><h2>Implantação</h2></div>
+    <p class="lede">Lote de 20,00&nbsp;×&nbsp;30,00&nbsp;m (600&nbsp;m²), recuo frontal ajardinado, recuos laterais de 1,5&nbsp;m e fundo de lote reservado ao terraço de convivência.</p>
+
+    <figure class="drawing">
+      <div class="drawing-bar"><b>PR&#8209;02</b><span>implantação &middot; esc. esquemática</span></div>
+      <div class="drawing-body">
+        <svg viewBox="0 0 560 780" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Planta de implantação mostrando o lote, a casa, a garagem, o jardim frontal e o terraço de fundos">
+          <!-- lot -->
+          <rect x="120" y="90" width="300" height="450" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+          <!-- back yard / garden -->
+          <rect x="120" y="90" width="300" height="180" fill="url(#grama)"/>
+          <text x="270" y="130" text-anchor="middle" class="mono" font-size="11" fill="var(--ink-soft)">QUINTAL / JARDIM DE FUNDOS</text>
+          <!-- trees -->
+          <g fill="var(--verde)" opacity=".8">
+            <circle cx="150" cy="180" r="12"/><rect x="148" y="192" width="4" height="12" fill="var(--tijolo)"/>
+            <circle cx="392" cy="200" r="12"/><rect x="390" y="212" width="4" height="12" fill="var(--tijolo)"/>
+            <circle cx="180" cy="245" r="9"/><rect x="178" y="254" width="3" height="9" fill="var(--tijolo)"/>
+          </g>
+
+          <!-- back terrace -->
+          <rect x="235" y="222" width="110" height="48" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="1.5"/>
+          <text x="290" y="242" text-anchor="middle" class="mono" font-size="9.5" fill="var(--ink)">TERRAÇO</text>
+          <text x="290" y="254" text-anchor="middle" class="mono" font-size="9.5" fill="var(--ink)">CONVIVÊNCIA</text>
+          <!-- bench icon -->
+          <rect x="270" y="260" width="40" height="6" fill="var(--tijolo)"/>
+          <rect x="272" y="266" width="4" height="8" fill="var(--tijolo)"/>
+          <rect x="304" y="266" width="4" height="8" fill="var(--tijolo)"/>
+
+          <!-- main house volume -->
+          <rect x="142.5" y="270" width="255" height="120" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="2"/>
+          <text x="270" y="300" text-anchor="middle" font-size="12" fill="var(--ink)">CASA &mdash; ÁREA SOCIAL / SUÍTE / DORMITÓRIOS</text>
+          <text x="270" y="316" text-anchor="middle" class="mono" font-size="9.5" fill="var(--ink-soft)">pé-direito alto sobre o social</text>
+          <!-- veranda strip in front of house (arcaded) -->
+          <rect x="187.5" y="390" width="210" height="20" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>
+          <g stroke="var(--tijolo)" stroke-width="4">
+            <line x1="187.5" y1="410" x2="187.5" y2="390"/>
+            <line x1="229.5" y1="410" x2="229.5" y2="390"/>
+            <line x1="271.5" y1="410" x2="271.5" y2="390"/>
+            <line x1="313.5" y1="410" x2="313.5" y2="390"/>
+            <line x1="355.5" y1="410" x2="355.5" y2="390"/>
+            <line x1="397.5" y1="410" x2="397.5" y2="390"/>
+          </g>
+          <text x="292" y="404" text-anchor="middle" class="mono" font-size="8.5" fill="var(--ink-soft)">varanda arcada</text>
+
+          <!-- garage -->
+          <rect x="142.5" y="357.5" width="90" height="52.5" fill="url(#tijolo)" stroke="var(--ink)" stroke-width="2"/>
+          <text x="187.5" y="378" text-anchor="middle" font-size="10.5" fill="var(--paper)">GARAGEM</text>
+          <text x="187.5" y="391" text-anchor="middle" class="mono" font-size="9" fill="var(--paper)">COBERTA · 2 CARROS</text>
+
+          <!-- driveway -->
+          <rect x="142.5" y="410" width="90" height="55" fill="var(--ink-faint)" opacity=".22"/>
+          <text x="187.5" y="440" text-anchor="middle" class="mono" font-size="8.5" fill="var(--ink-soft)">acesso</text>
+
+          <!-- front garden -->
+          <rect x="120" y="465" width="300" height="75" fill="url(#grama)"/>
+          <text x="270" y="500" text-anchor="middle" class="mono" font-size="11" fill="var(--ink-soft)">JARDIM DE ACESSO</text>
+          <g fill="var(--verde)" opacity=".8">
+            <circle cx="355" cy="490" r="10"/><rect x="353" y="500" width="4" height="10" fill="var(--tijolo)"/>
+          </g>
+
+          <!-- street -->
+          <line x1="120" y1="540" x2="420" y2="540" stroke="var(--ink)" stroke-width="2"/>
+          <text x="270" y="560" text-anchor="middle" class="sans" font-size="11" letter-spacing=".08em" fill="var(--ink-soft)">RUA</text>
+          <path d="M180,540 L180,548 L195,548 L195,540" fill="none" stroke="var(--ink-soft)" stroke-width="1"/>
+
+          <!-- side setbacks -->
+          <rect x="120" y="270" width="22.5" height="270" fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,3"/>
+          <rect x="397.5" y="270" width="22.5" height="270" fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="131" y="410" text-anchor="middle" class="mono" font-size="8" fill="var(--ink-faint)" transform="rotate(-90 131 410)">recuo 1,5 m</text>
+          <text x="409" y="410" text-anchor="middle" class="mono" font-size="8" fill="var(--ink-faint)" transform="rotate(-90 409 410)">recuo 1,5 m</text>
+
+          <!-- dimension: width -->
+          <line x1="120" y1="70" x2="420" y2="70" stroke="var(--ink)" stroke-width="1"/>
+          <line x1="120" y1="64" x2="120" y2="76" stroke="var(--ink)" stroke-width="1"/>
+          <line x1="420" y1="64" x2="420" y2="76" stroke="var(--ink)" stroke-width="1"/>
+          <text x="270" y="60" text-anchor="middle" class="mono" font-size="11" fill="var(--ink)">20,00 m</text>
+
+          <!-- dimension: depth -->
+          <line x1="100" y1="90" x2="100" y2="540" stroke="var(--ink)" stroke-width="1"/>
+          <line x1="94" y1="90" x2="106" y2="90" stroke="var(--ink)" stroke-width="1"/>
+          <line x1="94" y1="540" x2="106" y2="540" stroke="var(--ink)" stroke-width="1"/>
+          <text x="80" y="318" text-anchor="middle" class="mono" font-size="11" fill="var(--ink)" transform="rotate(-90 80 318)">30,00 m</text>
+
+          <!-- front setback dimension -->
+          <line x1="440" y1="465" x2="440" y2="540" stroke="var(--ink-soft)" stroke-width="1"/>
+          <text x="452" y="506" text-anchor="middle" class="mono" font-size="9.5" fill="var(--ink-soft)" transform="rotate(-90 452 506)">5,00 m</text>
+
+          <!-- north arrow -->
+          <g transform="translate(470,110)">
+            <circle r="20" fill="none" stroke="var(--ink-soft)" stroke-width="1"/>
+            <path d="M0,-16 L6,8 L0,3 L-6,8 Z" fill="var(--terracota)"/>
+            <text y="32" text-anchor="middle" class="sans" font-size="10" fill="var(--ink-soft)">N</text>
+          </g>
+
+          <!-- sun path -->
+          <g class="sans" font-size="9" fill="var(--ink-soft)">
+            <circle cx="150" cy="105" r="7" fill="none" stroke="var(--terracota)" stroke-width="1.5"/>
+            <text x="150" y="132" text-anchor="middle">sol · manhã</text>
+            <circle cx="390" cy="105" r="7" fill="none" stroke="var(--terracota)" stroke-width="1.5"/>
+            <text x="390" y="132" text-anchor="middle">sol · tarde</text>
+          </g>
+          <text x="270" y="30" text-anchor="middle" class="note sans" font-size="10" fill="var(--ink-faint)">orientar preferencialmente com a área social afastada do sol da tarde</text>
+        </svg>
+      </div>
+      <figcaption class="cap">Massa construída ≈ 226&nbsp;m² sobre um lote de 600&nbsp;m² &mdash; taxa de ocupação ≈ 38&nbsp;%, deixando jardim de frente e quintal de fundos generosos. A orientação exata (rotação da casa no lote) deve ser ajustada conforme a face do terreno voltada para a rua.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ================= PR-03 PLANTA BAIXA ================= -->
+  <section class="sheet" id="planta">
+    <div class="sheet-head"><span class="sheet-num">PR&#8209;03</span><h2>Planta baixa</h2></div>
+    <p class="lede">Volume em "L": barra frontal com garagem, varanda arcada e área social; ala perpendicular com corredor, suíte, três dormitórios e banheiro compartilhado.</p>
+
+    <figure class="drawing">
+      <div class="drawing-bar"><b>PR&#8209;03</b><span>planta baixa · esc. esquemática</span></div>
+      <div class="drawing-body">
+        <svg viewBox="0 0 640 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Planta baixa esquemática com garagem, varanda, sala e cozinha integradas, suíte, três dormitórios, banheiros e terraço de fundos">
+          <g transform="translate(80,90)">
+
+            <!-- terrace fundos (drawn first, behind) -->
+            <rect x="140" y="170" width="140" height="66" fill="url(#piso)" stroke="var(--ink-soft)" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <text x="210" y="198" text-anchor="middle" class="mono" font-size="9.5" fill="var(--ink-soft)">TERRAÇO / FUNDOS</text>
+            <text x="210" y="211" text-anchor="middle" class="mono" font-size="8.5" fill="var(--ink-faint)">7,00 × 3,30 m</text>
+            <rect x="180" y="216" width="34" height="6" fill="var(--tijolo)"/>
+
+            <!-- veranda frontal (arcaded) -->
+            <rect x="120" y="0" width="210" height="50" fill="url(#piso)" stroke="var(--ink)" stroke-width="2.5"/>
+            <g stroke="var(--tijolo)" stroke-width="6">
+              <line x1="120" y1="0" x2="120" y2="50"/>
+              <line x1="162" y1="0" x2="162" y2="14"/>
+              <line x1="204" y1="0" x2="204" y2="14"/>
+              <line x1="246" y1="0" x2="246" y2="14"/>
+              <line x1="288" y1="0" x2="288" y2="14"/>
+              <line x1="330" y1="0" x2="330" y2="50"/>
+            </g>
+            <g fill="none" stroke="var(--terracota)" stroke-width="2">
+              <path d="M120,14 A21,14 0 0 1 162,14"/>
+              <path d="M162,14 A21,14 0 0 1 204,14"/>
+              <path d="M204,14 A21,14 0 0 1 246,14"/>
+              <path d="M246,14 A21,14 0 0 1 288,14"/>
+              <path d="M288,14 A21,14 0 0 1 330,14"/>
+            </g>
+            <text x="225" y="34" text-anchor="middle" class="mono" font-size="9" fill="var(--ink-soft)">VARANDA ARCADA · 10,5 × 2,5 m</text>
+
+            <!-- Garagem -->
+            <rect x="0" y="0" width="120" height="110" fill="url(#tijolo)" stroke="var(--ink)" stroke-width="2.5"/>
+            <text x="60" y="55" text-anchor="middle" font-size="11" fill="var(--paper)">GARAGEM</text>
+            <text x="60" y="69" text-anchor="middle" class="mono" font-size="9" fill="var(--paper)">6,00 × 5,50 m</text>
+
+            <!-- Social -->
+            <rect x="120" y="50" width="180" height="120" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+            <text x="210" y="105" text-anchor="middle" font-size="12" fill="var(--ink)">SALA + COZINHA</text>
+            <text x="210" y="120" text-anchor="middle" class="mono" font-size="9" fill="var(--ink-soft)">9,00 × 6,00 m &middot; pé-direito alto</text>
+            <text x="210" y="135" text-anchor="middle" class="mono" font-size="8.5" fill="var(--ink-faint)">cooktop + churrasqueira em bancada</text>
+            <!-- sliding door camarão at back -->
+            <line x1="140" y1="170" x2="280" y2="170" stroke="var(--terracota)" stroke-width="4"/>
+            <g stroke="var(--terracota)" stroke-width="1.5" opacity=".7">
+              <line x1="150" y1="164" x2="150" y2="170"/><line x1="164" y1="164" x2="164" y2="170"/>
+              <line x1="178" y1="164" x2="178" y2="170"/><line x1="192" y1="164" x2="192" y2="170"/>
+              <line x1="206" y1="164" x2="206" y2="170"/><line x1="220" y1="164" x2="220" y2="170"/>
+              <line x1="234" y1="164" x2="234" y2="170"/><line x1="248" y1="164" x2="248" y2="170"/>
+              <line x1="262" y1="164" x2="262" y2="170"/>
+            </g>
+            <text x="210" y="182" text-anchor="middle" class="mono" font-size="8" fill="var(--terracota)">porta de correr camarão (7,0 m)</text>
+
+            <!-- ventilation arrows -->
+            <g stroke="var(--ink-soft)" stroke-width="1.2" fill="none" stroke-dasharray="2,3" marker-end="url(#arrow)">
+              <path d="M150,25 L150,150"/>
+              <path d="M300,25 L215,150"/>
+            </g>
+
+            <!-- Lavabo -->
+            <rect x="300" y="50" width="30" height="36" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+            <text x="315" y="66" text-anchor="middle" class="mono" font-size="7.5" fill="var(--ink)">LAVABO</text>
+            <text x="315" y="76" text-anchor="middle" class="mono" font-size="6.5" fill="var(--ink-soft)">1,5×1,8</text>
+
+            <!-- corridor -->
+            <rect x="300" y="86" width="30" height="286" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="2"/>
+            <text x="315" y="230" text-anchor="middle" class="mono" font-size="7.5" fill="var(--ink-soft)" transform="rotate(-90 315 230)">CIRCULAÇÃO</text>
+
+            <!-- Suite quarto -->
+            <rect x="330" y="50" width="84" height="80" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+            <text x="372" y="86" text-anchor="middle" font-size="10.5" fill="var(--ink)">SUÍTE</text>
+            <text x="372" y="99" text-anchor="middle" class="mono" font-size="8" fill="var(--ink-soft)">4,20 × 4,00 m</text>
+            <!-- suite bath -->
+            <rect x="414" y="50" width="50" height="44" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="2"/>
+            <text x="439" y="70" text-anchor="middle" class="mono" font-size="7" fill="var(--ink)">BANHEIRO</text>
+            <text x="439" y="80" text-anchor="middle" class="mono" font-size="6.5" fill="var(--ink-soft)">2,5×2,2</text>
+            <!-- closet -->
+            <rect x="414" y="94" width="36" height="24" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="1.5"/>
+            <text x="432" y="109" text-anchor="middle" class="mono" font-size="6.5" fill="var(--ink-soft)">closet</text>
+
+            <!-- Quarto 2/3/4 -->
+            <rect x="330" y="130" width="70" height="66" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+            <text x="365" y="160" text-anchor="middle" font-size="10" fill="var(--ink)">QUARTO 2</text>
+            <text x="365" y="173" text-anchor="middle" class="mono" font-size="7.5" fill="var(--ink-soft)">3,50 × 3,30</text>
+
+            <rect x="330" y="196" width="70" height="66" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+            <text x="365" y="226" text-anchor="middle" font-size="10" fill="var(--ink)">QUARTO 3</text>
+            <text x="365" y="239" text-anchor="middle" class="mono" font-size="7.5" fill="var(--ink-soft)">3,50 × 3,30</text>
+
+            <rect x="330" y="262" width="70" height="66" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+            <text x="365" y="292" text-anchor="middle" font-size="10" fill="var(--ink)">QUARTO 4</text>
+            <text x="365" y="305" text-anchor="middle" class="mono" font-size="7.5" fill="var(--ink-soft)">3,50 × 3,30</text>
+
+            <!-- banheiro compartilhado -->
+            <rect x="330" y="328" width="56" height="44" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="2"/>
+            <text x="358" y="348" text-anchor="middle" class="mono" font-size="7.5" fill="var(--ink)">BANHEIRO</text>
+            <text x="358" y="358" text-anchor="middle" class="mono" font-size="6.5" fill="var(--ink-soft)">social · 2,8×2,2</text>
+
+            <!-- arch symbols for doors between rooms (simple swing arcs) -->
+            <g fill="none" stroke="var(--ink-faint)" stroke-width="1">
+              <path d="M300,120 A14,14 0 0 0 314,134"/>
+              <path d="M300,150 A14,14 0 0 1 314,164"/>
+              <path d="M300,215 A14,14 0 0 0 314,229"/>
+              <path d="M300,281 A14,14 0 0 0 314,295"/>
+              <path d="M330,345 A14,14 0 0 1 344,359"/>
+            </g>
+          </g>
+
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--ink-soft)"/>
+          </marker>
+        </svg>
+      </div>
+      <figcaption class="cap">Setas tracejadas indicam a ventilação cruzada: entra pelos arcos da varanda frontal e sai pela porta de correr integral dos fundos. Arcos finos entre ambientes indicam vãos de porta.</figcaption>
+    </figure>
+
+    <div class="legend">
+      <span><i style="background:var(--paper)"></i>ambiente interno</span>
+      <span><i style="background:var(--paper-2)"></i>circulação / molhado</span>
+      <span><i style="background:var(--tijolo)"></i>tijolo aparente</span>
+      <span><i style="border-color:var(--terracota); background:none"></i>esquadria / porta de correr</span>
+    </div>
+  </section>
+
+  <!-- ================= PR-04 CORTE ================= -->
+  <section class="sheet" id="corte">
+    <div class="sheet-head"><span class="sheet-num">PR&#8209;04</span><h2>Corte esquemático AA</h2></div>
+    <p class="lede">Corte passando pela varanda, área social e um dos dormitórios, evidenciando o contraste de pé-direito que dá amplitude ao ambiente mais usado da casa.</p>
+
+    <figure class="drawing">
+      <div class="drawing-bar"><b>PR&#8209;04</b><span>corte AA · esc. esquemática</span></div>
+      <div class="drawing-body">
+        <svg viewBox="0 0 780 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Corte esquemático mostrando telhado de telha colonial, tesoura de madeira aparente sobre a sala e forro baixo sobre o dormitório">
+          <!-- ground -->
+          <line x1="20" y1="340" x2="760" y2="340" stroke="var(--ink)" stroke-width="3"/>
+          <g stroke="var(--ink)" stroke-width="1">
+            <line x1="20" y1="340" x2="35" y2="352"/><line x1="45" y1="340" x2="60" y2="352"/>
+            <line x1="720" y1="340" x2="735" y2="352"/><line x1="745" y1="340" x2="760" y2="352"/>
+          </g>
+
+          <!-- veranda (left) low roof -->
+          <rect x="60" y="230" width="90" height="110" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M60,230 A45,30 0 0 1 150,230" fill="none" stroke="var(--terracota)" stroke-width="3"/>
+          <line x1="105" y1="230" x2="105" y2="340" stroke="var(--tijolo)" stroke-width="6"/>
+          <polygon points="35,240 175,240 155,205 55,205" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+          <text x="105" y="270" text-anchor="middle" class="mono" font-size="10" fill="var(--ink-soft)">varanda</text>
+
+          <!-- social volume (tall, trussed) -->
+          <rect x="150" y="150" width="260" height="190" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+          <text x="280" y="270" text-anchor="middle" font-size="12" fill="var(--ink)">SALA + COZINHA</text>
+          <text x="280" y="288" text-anchor="middle" class="mono" font-size="9.5" fill="var(--ink-soft)">pé-direito ≈ 4,80 m ao cume</text>
+          <!-- roof over social: gable with deep eaves, truss visible -->
+          <polygon points="120,150 280,55 440,150 410,150 280,80 150,150" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+          <!-- exposed truss (tesoura) -->
+          <g stroke="var(--tijolo)" stroke-width="3.5" fill="none">
+            <path d="M170,150 L280,85 L390,150"/>
+            <line x1="205" y1="150" x2="280" y2="105"/>
+            <line x1="355" y1="150" x2="280" y2="105"/>
+            <line x1="280" y1="150" x2="280" y2="85"/>
+          </g>
+          <!-- eave rafter tails -->
+          <g stroke="var(--tijolo)" stroke-width="2">
+            <line x1="128" y1="146" x2="118" y2="152"/>
+            <line x1="150" y1="146" x2="140" y2="152"/>
+            <line x1="410" y1="146" x2="420" y2="152"/>
+            <line x1="432" y1="146" x2="442" y2="152"/>
+          </g>
+
+          <!-- bedroom volume (low flat ceiling) -->
+          <rect x="410" y="220" width="180" height="120" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+          <line x1="410" y1="220" x2="590" y2="220" stroke="var(--ink-soft)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="500" y="270" text-anchor="middle" font-size="11" fill="var(--ink)">DORMITÓRIO</text>
+          <text x="500" y="288" text-anchor="middle" class="mono" font-size="9" fill="var(--ink-soft)">pé-direito ≈ 2,70 m</text>
+          <polygon points="400,220 500,168 600,220" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+
+          <!-- dimension lines heights -->
+          <line x1="35" y1="55" x2="35" y2="340" stroke="var(--ink-faint)" stroke-width="1"/>
+          <line x1="29" y1="55" x2="41" y2="55" stroke="var(--ink-faint)" stroke-width="1"/>
+          <line x1="29" y1="340" x2="41" y2="340" stroke="var(--ink-faint)" stroke-width="1"/>
+          <text x="15" y="200" text-anchor="middle" class="mono" font-size="9" fill="var(--ink-faint)" transform="rotate(-90 15 200)">4,80 m cume</text>
+
+          <text x="640" y="270" class="mono" font-size="9" fill="var(--ink-soft)">beiral generoso</text>
+          <path d="M640,275 L600,225" stroke="var(--ink-soft)" stroke-width="1" fill="none" marker-end="url(#arrow2)"/>
+          <marker id="arrow2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--ink-soft)"/>
+          </marker>
+        </svg>
+      </div>
+      <figcaption class="cap">A tesoura de madeira aparente e o telhado cerâmico ficam visíveis por dentro da sala; o mesmo telhado desce em beiral largo sobre a varanda e sobre a ala de dormitórios, que mantêm forro baixo convencional.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ================= PR-05 FACHADAS ================= -->
+  <section class="sheet" id="fachadas">
+    <div class="sheet-head"><span class="sheet-num">PR&#8209;05</span><h2>Fachadas</h2></div>
+    <p class="lede">Reboco branco, arcos na varanda, chaminé decorativa em terracota e base de tijolo aparente nas colunas &mdash; a mesma linguagem se repete nas três faces da casa.</p>
+
+    <figure class="drawing">
+      <div class="drawing-bar"><b>PR&#8209;05.1</b><span>fachada frontal</span></div>
+      <div class="drawing-body">
+        <svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fachada frontal com garagem, varanda em arcos, telhado de telha colonial e chaminé decorativa">
+          <line x1="20" y1="390" x2="880" y2="390" stroke="var(--ink)" stroke-width="2"/>
+
+          <!-- garage volume -->
+          <rect x="40" y="230" width="200" height="160" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="40" y="370" width="200" height="20" fill="url(#tijolo)"/>
+          <line x1="70" y1="390" x2="70" y2="255" stroke="var(--tijolo)" stroke-width="10"/>
+          <line x1="210" y1="390" x2="210" y2="255" stroke="var(--tijolo)" stroke-width="10"/>
+          <polygon points="20,255 260,255 240,190 40,190" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+          <text x="140" y="330" text-anchor="middle" font-size="12" fill="var(--ink-soft)">garagem</text>
+
+          <!-- veranda with arches -->
+          <rect x="240" y="230" width="330" height="160" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="240" y="370" width="330" height="20" fill="url(#tijolo)"/>
+          <g stroke="var(--tijolo)" stroke-width="9">
+            <line x1="255" y1="390" x2="255" y2="255"/>
+            <line x1="330" y1="390" x2="330" y2="255"/>
+            <line x1="405" y1="390" x2="405" y2="255"/>
+            <line x1="480" y1="390" x2="480" y2="255"/>
+            <line x1="555" y1="390" x2="555" y2="255"/>
+          </g>
+          <g fill="none" stroke="var(--terracota)" stroke-width="3">
+            <path d="M255,255 A37.5,26 0 0 1 330,255"/>
+            <path d="M330,255 A37.5,26 0 0 1 405,255"/>
+            <path d="M405,255 A37.5,26 0 0 1 480,255"/>
+            <path d="M480,255 A37.5,26 0 0 1 555,255"/>
+          </g>
+          <!-- entrance door, arched -->
+          <rect x="392" y="300" width="42" height="90" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="3"/>
+          <path d="M392,300 A21,20 0 0 1 434,300" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="3"/>
+
+          <!-- bedroom wing volume with arched windows -->
+          <rect x="570" y="245" width="290" height="145" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="570" y="370" width="290" height="20" fill="url(#tijolo)"/>
+          <polygon points="555,255 880,255 858,180 577,180" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+          <g>
+            <rect x="620" y="300" width="46" height="60" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="3"/>
+            <path d="M620,300 A23,18 0 0 1 666,300" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="3"/>
+            <rect x="750" y="300" width="46" height="60" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="3"/>
+            <path d="M750,300 A23,18 0 0 1 796,300" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="3"/>
+          </g>
+
+          <!-- main roof over whole facade, deep eave -->
+          <polygon points="10,190 450,60 890,190 858,190 450,95 42,190" fill="url(#telha)" stroke="var(--ink)" stroke-width="2"/>
+          <!-- eave rafter tails -->
+          <g stroke="var(--tijolo)" stroke-width="2.5">
+            <line x1="60" y1="182" x2="46" y2="192"/><line x1="100" y1="164" x2="88" y2="176"/>
+            <line x1="800" y1="182" x2="814" y2="192"/><line x1="760" y1="164" x2="772" y2="176"/>
+          </g>
+
+          <!-- decorative chimney -->
+          <rect x="330" y="70" width="26" height="70" fill="var(--terracota)" stroke="var(--ink)" stroke-width="1.5"/>
+          <rect x="324" y="64" width="38" height="10" fill="var(--terracota-soft)" stroke="var(--ink)" stroke-width="1.5"/>
+
+          <text x="450" y="425" text-anchor="middle" class="mono" font-size="11" fill="var(--ink-soft)">FACHADA FRONTAL</text>
+        </svg>
+      </div>
+      <figcaption class="cap">Da esquerda para a direita: garagem coberta com pilastras de tijolo aparente, varanda arcada de entrada e ala dos dormitórios com janelas em arco. Telhado único de telha colonial amarra as três massas, com beiral profundo e chaminé decorativa ao centro.</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <figure class="drawing">
+        <div class="drawing-bar"><b>PR&#8209;05.2</b><span>fachada lateral</span></div>
+        <div class="drawing-body">
+          <svg viewBox="0 0 480 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fachada lateral mostrando o perfil do telhado mais alto sobre a sala e mais baixo sobre os dormitórios">
+            <line x1="20" y1="360" x2="460" y2="360" stroke="var(--ink)" stroke-width="2"/>
+            <!-- bedroom wing (foreground, lower) -->
+            <rect x="20" y="250" width="230" height="110" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+            <rect x="20" y="340" width="230" height="20" fill="url(#tijolo)"/>
+            <rect x="90" y="290" width="40" height="50" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="2.5"/>
+            <path d="M90,290 A20,16 0 0 1 130,290" fill="var(--paper-2)" stroke="var(--terracota)" stroke-width="2.5"/>
+            <polygon points="10,250 260,250 235,195 35,195" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+
+            <!-- social volume behind, taller -->
+            <rect x="230" y="150" width="230" height="210" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+            <rect x="230" y="340" width="230" height="20" fill="url(#tijolo)"/>
+            <line x1="270" y1="360" x2="270" y2="270" stroke="var(--tijolo)" stroke-width="8"/>
+            <path d="M270,270 A30,22 0 0 1 330,270" fill="none" stroke="var(--terracota)" stroke-width="3"/>
+            <polygon points="215,150 340,80 465,150 440,150 340,105 240,150" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+            <rect x="325" y="90" width="20" height="55" fill="var(--terracota)" stroke="var(--ink)" stroke-width="1.2"/>
+
+            <text x="240" y="395" text-anchor="middle" class="mono" font-size="11" fill="var(--ink-soft)">FACHADA LATERAL</text>
+          </svg>
+        </div>
+        <figcaption class="cap">O corte de telhado mostra o volume social mais alto ao fundo e a ala de dormitórios mais baixa em primeiro plano, com a chaminé aparecendo acima da cumeeira.</figcaption>
+      </figure>
+
+      <figure class="drawing">
+        <div class="drawing-bar"><b>PR&#8209;05.3</b><span>fachada de fundos</span></div>
+        <div class="drawing-body">
+          <svg viewBox="0 0 480 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fachada de fundos com a porta de vidro de correr camarão aberta para o terraço coberto">
+            <line x1="20" y1="360" x2="460" y2="360" stroke="var(--ink)" stroke-width="2"/>
+            <rect x="60" y="200" width="360" height="160" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+            <rect x="60" y="340" width="360" height="20" fill="url(#tijolo)"/>
+            <polygon points="40,200 440,200 415,150 65,150" fill="url(#telha)" stroke="var(--ink)" stroke-width="1.5"/>
+
+            <!-- open sliding camarão door: glass stacked to one side -->
+            <rect x="120" y="230" width="220" height="110" fill="var(--paper-2)" stroke="var(--ink)" stroke-width="2"/>
+            <rect x="300" y="230" width="40" height="110" fill="var(--paper)" stroke="var(--terracota)" stroke-width="2.5"/>
+            <g stroke="var(--terracota)" stroke-width="1.5" opacity=".6">
+              <line x1="310" y1="230" x2="310" y2="340"/>
+              <line x1="320" y1="230" x2="320" y2="340"/>
+              <line x1="330" y1="230" x2="330" y2="340"/>
+            </g>
+            <text x="210" y="290" text-anchor="middle" class="mono" font-size="10" fill="var(--ink-soft)">vão aberto para o terraço</text>
+
+            <!-- covered terrace posts -->
+            <line x1="140" y1="360" x2="140" y2="205" stroke="var(--tijolo)" stroke-width="8"/>
+            <line x1="360" y1="360" x2="360" y2="205" stroke="var(--tijolo)" stroke-width="8"/>
+            <polygon points="110,205 390,205 375,175 125,175" fill="url(#telha)" opacity=".9" stroke="var(--ink)" stroke-width="1.2"/>
+
+            <!-- bench under terrace -->
+            <rect x="220" y="345" width="40" height="6" fill="var(--tijolo)"/>
+
+            <text x="240" y="395" text-anchor="middle" class="mono" font-size="11" fill="var(--ink-soft)">FACHADA DE FUNDOS</text>
+          </svg>
+        </div>
+        <figcaption class="cap">A porta de correr camarão abre por completo, unindo sala e cozinha ao terraço coberto simples &mdash; sem piscina, apenas um ponto de estar com bancos/mesa.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= PR-06 QUADRO DE ÁREAS ================= -->
+  <section class="sheet" id="areas">
+    <div class="sheet-head"><span class="sheet-num">PR&#8209;06</span><h2>Quadro de áreas</h2></div>
+    <p class="lede">Áreas de referência do estudo preliminar, a confirmar em projeto executivo.</p>
+
+    <table class="areas">
+      <thead>
+        <tr><th>Ambiente</th><th class="num">Dimensões</th><th class="num">Área</th></tr>
+      </thead>
+      <tbody>
+        <tr class="group"><td colspan="3">Acesso e área social</td></tr>
+        <tr><td>Garagem coberta (2 carros)</td><td class="num">6,00 × 5,50 m</td><td class="num">33,0 m²</td></tr>
+        <tr><td>Varanda frontal arcada</td><td class="num">10,50 × 2,50 m</td><td class="num">26,3 m²</td></tr>
+        <tr><td>Sala + cozinha integradas</td><td class="num">9,00 × 6,00 m</td><td class="num">54,0 m²</td></tr>
+        <tr><td>Lavabo social</td><td class="num">1,50 × 1,80 m</td><td class="num">2,7 m²</td></tr>
+        <tr><td>Terraço de fundos</td><td class="num">7,00 × 3,30 m</td><td class="num">23,1 m²</td></tr>
+
+        <tr class="group"><td colspan="3">Dormitórios e circulação</td></tr>
+        <tr><td>Suíte (quarto)</td><td class="num">4,20 × 4,00 m</td><td class="num">16,8 m²</td></tr>
+        <tr><td>Banheiro da suíte</td><td class="num">2,50 × 2,20 m</td><td class="num">5,5 m²</td></tr>
+        <tr><td>Closet da suíte</td><td class="num">1,80 × 1,20 m</td><td class="num">2,2 m²</td></tr>
+        <tr><td>Quarto 2</td><td class="num">3,50 × 3,30 m</td><td class="num">11,6 m²</td></tr>
+        <tr><td>Quarto 3</td><td class="num">3,50 × 3,30 m</td><td class="num">11,6 m²</td></tr>
+        <tr><td>Quarto 4</td><td class="num">3,50 × 3,30 m</td><td class="num">11,6 m²</td></tr>
+        <tr><td>Banheiro compartilhado</td><td class="num">2,80 × 2,20 m</td><td class="num">6,2 m²</td></tr>
+        <tr><td>Circulação / hall</td><td class="num">1,50 × 14,30 m</td><td class="num">21,5 m²</td></tr>
+
+        <tr class="total"><td>Área coberta total</td><td class="num"></td><td class="num">≈ 226 m²</td></tr>
+        <tr><td>Área do terreno</td><td class="num"></td><td class="num">600,0 m²</td></tr>
+        <tr><td>Taxa de ocupação</td><td class="num"></td><td class="num">≈ 38 %</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="disclaimer">
+    Documento gerado como estudo preliminar/conceitual para orientar um projeto arquitetônico residencial em estilo rústico/colonial brasileiro. Plantas, cortes e fachadas são esquemáticos, sem escala de impressão nem dimensionamento estrutural. A elaboração do projeto executivo, o projeto estrutural, os projetos complementares e o processo de aprovação municipal (alvará de construção) devem ser conduzidos por profissional habilitado com registro no CAU ou CREA e respectiva ART/RRT.
+  </footer>
+
+</div>

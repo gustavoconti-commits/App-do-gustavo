@@ -7,21 +7,6 @@
 <meta name="description" content="Start — os primeiros passos nos investimentos. Curso da Sacre Investimentos, escritório parceiro do BTG Pactual. Aprenda o caminho certo, sem enrolação.">
 <title>Start — Os Primeiros Passos nos Investimentos · Sacre Investimentos</title>
 
-<!--
-  TIKTOK PIXEL
-  Vai rodar anúncios pagos no TikTok — falta colar o código-base aqui.
-  Passo a passo: TikTok Ads Manager > Events Manager > Web Events >
-  criar Pixel (configuração manual) > copiar o código-base e colar
-  neste lugar, substituindo este comentário.
-  Importante: como o checkout acontece no domínio do Hotmart, o Pixel
-  aqui só enxerga visita e clique no CTA — para rastrear a compra em
-  si, conecte o mesmo Pixel ID também no Hotmart (Painel do Produtor
-  > Pixels de Rastreamento).
-  Depois de colar o código, ative o disparo do evento InitiateCheckout
-  no clique do CTA — já deixei o gancho pronto no <script> no final
-  da página (função trackInitiateCheckout).
--->
-
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./fonts.css">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -532,18 +517,6 @@
 
   document.querySelectorAll('.js-checkout-link').forEach((link) => {
     link.href = buildCheckoutHref()
-  })
-
-  // Dispara o evento InitiateCheckout do TikTok Pixel no clique do CTA.
-  // Não faz nada até o código-base do Pixel (ttq) ser instalado no <head>.
-  function trackInitiateCheckout() {
-    if (typeof ttq !== 'undefined') {
-      ttq.track('InitiateCheckout')
-    }
-  }
-
-  document.querySelectorAll('.js-checkout-link').forEach((link) => {
-    link.addEventListener('click', trackInitiateCheckout)
   })
 
   // Accordion do FAQ

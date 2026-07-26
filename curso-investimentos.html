@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0B3A2A">
+<meta name="description" content="Start — os primeiros passos nos investimentos. Curso da Sacre Investimentos, escritório parceiro do BTG Pactual. Aprenda o caminho certo, sem enrolação.">
+<title>Start — Os Primeiros Passos nos Investimentos · Sacre Investimentos</title>
+
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./fonts.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          patrimonio: '#0B3A2A',
+          sacre: '#14603C',
+          salvia: '#8AA593',
+          dourado: '#C2A14E',
+          pergaminho: '#F4EEE2',
+          grafite: '#2B2D28',
+        },
+        fontFamily: {
+          display: ['"Titillium Web"', 'sans-serif'],
+          body: ['Inter', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; }
+  .font-display { font-family: 'Titillium Web', sans-serif; }
+  .faq-answer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+  .faq-answer > div { overflow: hidden; }
+  .faq-item[data-open="true"] .faq-answer { grid-template-rows: 1fr; }
+  .faq-item[data-open="true"] .faq-icon { transform: rotate(45deg); }
+  .faq-icon { transition: transform .2s ease; }
+  .faq-item { transition: border-color .2s ease; }
+  .faq-item:hover { border-color: #C2A14E; }
+
+  /* Pequenas animações — sempre respeitando quem prefere menos movimento */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-group > .reveal:nth-child(2) { transition-delay: .08s; }
+    .reveal-group > .reveal:nth-child(3) { transition-delay: .16s; }
+    .reveal-group > .reveal:nth-child(4) { transition-delay: .24s; }
+
+    .card-hover { transition: transform .2s ease, box-shadow .2s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(11,58,42,.12); }
+  }
+</style>
+</head>
+<body class="bg-pergaminho text-grafite antialiased">
+
+<main>
+
+  <!-- 1. HERO — fundo escuro, autoridade -->
+  <section class="bg-patrimonio text-pergaminho">
+    <div class="max-w-5xl mx-auto px-6 pt-16 pb-14 md:pt-24 md:pb-20">
+      <p class="font-display font-bold text-dourado tracking-widest text-xs md:text-sm uppercase mb-4">
+        Sacre Investimentos · Parceira BTG Pactual
+      </p>
+      <h1 class="font-display text-3xl sm:text-4xl md:text-5xl leading-tight mb-5 max-w-3xl">
+        <span class="font-light">Patrimônio começa com</span>
+        <span class="font-bold">conhecimento</span>,
+        <span class="font-light">não com sorte.</span>
+      </h1>
+      <p class="text-salvia text-base md:text-lg max-w-2xl mb-8 leading-relaxed">
+        <strong class="text-pergaminho">Start</strong> é o curso da Sacre Investimentos para quem
+        busca dar os primeiros passos no mundo dos investimentos — direto ao ponto, sem promessa
+        de ganho fácil, pela mesma equipe que já orienta milhares de pessoas em todo o Brasil.
+      </p>
+
+      <div class="rounded-xl overflow-hidden border border-sacre mb-8 max-w-2xl aspect-video bg-sacre/40 flex items-center justify-center">
+        <img
+          src="https://placehold.co/800x450/0B3A2A/C2A14E?text=V%C3%ADdeo+do+Curso"
+          alt="Vídeo de apresentação do curso Start, com Thiago Blanco"
+          class="w-full h-full object-cover"
+        >
+      </div>
+
+      <a
+        href="https://go.hotmart.com/U88616957P?ap=e4d0"
+        data-cta
+        class="js-checkout-link inline-flex items-center justify-center gap-2 bg-dourado text-grafite font-display font-bold text-base md:text-lg px-8 py-4 rounded-lg hover:bg-sacre hover:text-pergaminho transition-colors w-full sm:w-auto text-center"
+      >
+        Quero aprender o caminho certo
+      </a>
+    </div>
+  </section>
+
+  <!-- 2. AUTORIDADE — fundo claro -->
+  <section class="bg-pergaminho">
+    <div class="max-w-5xl mx-auto px-6 py-16 md:py-20">
+      <p class="font-display font-bold text-sacre tracking-widest text-xs uppercase mb-3 text-center">
+        Quem está por trás do curso
+      </p>
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5 text-center">Sacre Investimentos</h2>
+      <p class="text-grafite/90 leading-relaxed max-w-2xl mx-auto text-center mb-10">
+        Este curso é uma iniciativa da Sacre Investimentos, escritório de assessoria de
+        investimentos parceiro do BTG Pactual do qual sou sócio. É a mesma equipe que orienta
+        milhares de pessoas, todos os dias, a organizar sua vida financeira com clareza — sem
+        promessa de ganho fácil e sem recomendação de ativo específico.
+      </p>
+      <div class="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-14 reveal-group">
+        <div class="text-center reveal">
+          <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1 counter" data-target="5000" data-decimals="0" data-prefix="+">+5.000</p>
+          <p class="text-sm text-grafite/70">clientes atendidos em todo o Brasil</p>
+        </div>
+        <div class="text-center reveal">
+          <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1">R$ 1 bi+</p>
+          <p class="text-sm text-grafite/70">sob assessoria</p>
+        </div>
+        <div class="text-center reveal">
+          <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1 counter" data-target="9.2" data-decimals="1" data-suffix="/10">9,2/10</p>
+          <p class="text-sm text-grafite/70">nota de recomendação (NPS) dos clientes</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-[160px_1fr] gap-8 items-start max-w-3xl mx-auto border-t border-salvia/30 pt-10 reveal">
+        <img
+          src="https://placehold.co/320x320/8AA593/2B2D28?text=Thiago+Blanco"
+          alt="Foto de Thiago Blanco, instrutor do curso"
+          class="w-32 md:w-full rounded-xl mx-auto md:mx-0"
+        >
+        <div>
+          <p class="font-display font-bold text-sacre tracking-widest text-xs uppercase mb-2">Quem ensina</p>
+          <h3 class="font-display text-xl font-bold mb-3">Thiago Blanco</h3>
+          <p class="text-grafite/90 leading-relaxed text-sm">
+            Thiago é sócio da Sacre Investimentos, assessor de investimentos e Head de Marketing
+            e Educação. É mestre em Administração pela Unioeste Cascavel, com MBAs em Marketing
+            Digital (Empíricus), Gestão Estratégica (USP) e Engenharia e Inovação (USP/UFSC), além
+            de graduado em Administração e em Gestão de Agronegócios pela UniCesumar.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. DOR — fundo claro -->
+  <section class="bg-white">
+    <div class="max-w-5xl mx-auto px-6 py-16 md:py-20">
+      <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-3">
+        Se algum desses medos te atrasa, o curso é para você
+      </h2>
+      <p class="text-grafite/70 text-center max-w-2xl mx-auto mb-12">
+        Nenhum deles é bobagem. São os mesmos que eu ouço, toda semana, de quem chega até mim.
+      </p>
+      <div class="grid md:grid-cols-3 gap-6 reveal-group">
+        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30 reveal card-hover">
+          <h3 class="font-display font-bold text-sacre text-lg mb-2">"Tenho medo de perder dinheiro"</h3>
+          <p class="text-grafite/80 leading-relaxed text-sm">
+            Ninguém te ensinou a diferença entre investir com critério e apostar. Sem essa base,
+            o medo é o comportamento certo — mas ele não precisa te paralisar para sempre.
+          </p>
+        </div>
+        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30 reveal card-hover">
+          <h3 class="font-display font-bold text-sacre text-lg mb-2">"Não sei por onde começar"</h3>
+          <p class="text-grafite/80 leading-relaxed text-sm">
+            Tesouro, CDB, fundo, ação, reserva de emergência — a quantidade de termos assusta antes
+            mesmo de você dar o primeiro passo. Falta um caminho, não falta interesse.
+          </p>
+        </div>
+        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30 reveal card-hover">
+          <h3 class="font-display font-bold text-sacre text-lg mb-2">"Não confio em quem promete ganho fácil"</h3>
+          <p class="text-grafite/80 leading-relaxed text-sm">
+            Você já viu gente prometendo rentabilidade garantida e método infalível. Está certo em
+            desconfiar — e é exatamente por isso que este curso não promete nenhuma das duas coisas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. OFERTA / SOLUÇÃO — fundo claro -->
+  <section class="bg-pergaminho">
+    <div class="max-w-4xl mx-auto px-6 py-16 md:py-20 text-center">
+      <p class="font-display font-bold text-sacre tracking-widest text-xs uppercase mb-3">O curso</p>
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-5">
+        Start — os primeiros passos nos investimentos
+      </h2>
+      <p class="text-grafite/90 leading-relaxed max-w-2xl mx-auto">
+        O Start é um curso para quem busca dar os primeiros passos no mundo dos investimentos.
+        Aqui o futuro investidor encontra as respostas certas para as suas dúvidas e ganha
+        segurança para começar a colocar o dinheiro para trabalhar — sem dica de ativo, com
+        raciocínio para tomar suas próprias decisões.
+      </p>
+    </div>
+  </section>
+
+  <!-- 5. CURRÍCULO — fundo claro -->
+  <section class="bg-white">
+    <div class="max-w-5xl mx-auto px-6 py-16 md:py-20">
+      <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-3">O que você vai estudar</h2>
+      <p class="text-grafite/70 text-center max-w-xl mx-auto mb-4">
+        18 aulas, organizadas em 4 etapas — do planejamento às ferramentas de análise.
+      </p>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-grafite/60 mb-12">
+        <span>2h de conteúdo prático</span>
+        <span>·</span>
+        <span>certificado digital de 6h</span>
+        <span>·</span>
+        <span>12 meses de acesso</span>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-5 reveal-group">
+        <div class="p-6 rounded-xl bg-pergaminho reveal card-hover">
+          <h3 class="font-display font-bold text-sacre mb-3">1. Planejamento e fundamentos</h3>
+          <ul class="space-y-2 text-sm text-grafite/85">
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Orçamento Familiar</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Descobrindo seu Perfil de Investidor</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Tipos de Risco nos Investimentos</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Equilibrando sua Carteira</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Criando minha Reserva de Emergência</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-xl bg-pergaminho reveal card-hover">
+          <h3 class="font-display font-bold text-sacre mb-3">2. Economia na prática</h3>
+          <ul class="space-y-2 text-sm text-grafite/85">
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Juros, Vilão ou Aliado?</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Tipos de Inflação</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-xl bg-pergaminho sm:col-span-2 reveal card-hover">
+          <h3 class="font-display font-bold text-sacre mb-3">3. Onde investir</h3>
+          <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-grafite/85">
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Renda Fixa ou Variável?</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Investindo em Títulos Públicos</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Investindo em Títulos Privados</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Investindo em ETF (Exchange Traded Fund)</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Investindo em Fundos de Investimentos</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Investindo em Fundos Imobiliários</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Investindo em Ações</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Investindo em BDRs</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Operando Derivativos</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-xl bg-pergaminho sm:col-span-2 reveal card-hover">
+          <h3 class="font-display font-bold text-sacre mb-3">4. Ferramentas de análise</h3>
+          <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-grafite/85">
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Análise Técnica</li>
+            <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Análise Fundamentalista</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. PROVA SOCIAL — fundo escuro -->
+  <section class="bg-patrimonio text-pergaminho">
+    <div class="max-w-5xl mx-auto px-6 py-16 md:py-20">
+      <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-12">Quem já fez, conta</h2>
+      <div class="grid md:grid-cols-3 gap-6 reveal-group">
+        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre reveal card-hover">
+          <p class="text-salvia leading-relaxed text-sm mb-4">
+            "Eu adiava investir há anos porque não entendia nada e tinha vergonha de perguntar.
+            O curso explicou do zero, no meu ritmo, e hoje eu entendo o que estou fazendo."
+          </p>
+          <footer class="font-display font-bold text-dourado text-sm">— Aluna, turma de iniciantes</footer>
+        </blockquote>
+        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre reveal card-hover">
+          <p class="text-salvia leading-relaxed text-sm mb-4">
+            "O que mais mudou foi a confiança. Antes eu não sabia diferenciar uma indicação séria
+            de uma promessa milagrosa. Agora eu sei fazer essa pergunta sozinho."
+          </p>
+          <footer class="font-display font-bold text-dourado text-sm">— Aluno, turma de iniciantes</footer>
+        </blockquote>
+        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre reveal card-hover">
+          <p class="text-salvia leading-relaxed text-sm mb-4">
+            "Finalmente organizei minha reserva de emergência e entendi as opções que tinha antes
+            de decidir qualquer coisa. Sem pressa, sem susto."
+          </p>
+          <footer class="font-display font-bold text-dourado text-sm">— Aluna, turma de iniciantes</footer>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. PREÇO + BÔNUS — fundo claro -->
+  <section class="bg-pergaminho">
+    <div class="max-w-2xl mx-auto px-6 py-16 md:py-20">
+      <div class="bg-white rounded-2xl border-2 border-dourado p-8 md:p-10 text-center shadow-sm reveal card-hover">
+        <p class="font-display font-bold text-sacre tracking-widest text-xs uppercase mb-3">
+          Start — os primeiros passos nos investimentos
+        </p>
+        <p class="text-grafite/50 text-lg line-through mb-0">R$ 197</p>
+        <p class="font-display text-4xl md:text-5xl font-bold text-grafite mb-1">R$ 97</p>
+        <p class="text-grafite/70 text-sm mb-8">ou em até 12x de R$ 9,68 no cartão</p>
+
+        <ul class="text-left space-y-3 mb-8 max-w-sm mx-auto">
+          <li class="flex gap-3 text-sm text-grafite/90">
+            <span class="text-dourado font-bold shrink-0">✓</span> Acesso completo e irrestrito à plataforma, com +20 vídeo-aulas gravadas
+          </li>
+          <li class="flex gap-3 text-sm text-grafite/90">
+            <span class="text-dourado font-bold shrink-0">✓</span> Materiais complementares (slides, relatórios, planilhas e links)
+          </li>
+          <li class="flex gap-3 text-sm text-grafite/90">
+            <span class="text-dourado font-bold shrink-0">✓</span> Certificado digital de conclusão (6h, Curso Livre)
+          </li>
+          <li class="flex gap-3 text-sm text-grafite/90">
+            <span class="text-dourado font-bold shrink-0">✓</span> Suporte com especialistas por comentários ou e-mail
+          </li>
+          <li class="flex gap-3 text-sm text-grafite/90">
+            <span class="text-dourado font-bold shrink-0">✓</span> Acesso ao conteúdo por 12 meses
+          </li>
+          <li class="flex gap-3 text-sm text-grafite/90 font-semibold">
+            <span class="text-dourado font-bold shrink-0">✓</span> Bônus: acesso direto ao WhatsApp do Gustavo para tirar suas dúvidas
+          </li>
+        </ul>
+
+        <a
+          href="https://go.hotmart.com/U88616957P?ap=e4d0"
+          data-cta
+          class="js-checkout-link inline-flex items-center justify-center gap-2 bg-dourado text-grafite font-display font-bold text-base md:text-lg px-8 py-4 rounded-lg hover:bg-sacre hover:text-pergaminho transition-colors w-full text-center"
+        >
+          Quero começar agora
+        </a>
+        <p class="text-xs text-grafite/60 mt-4">Pagamento processado com segurança via Hotmart.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. GARANTIA — fundo claro -->
+  <section class="bg-white">
+    <div class="max-w-2xl mx-auto px-6 py-14 md:py-16 text-center reveal">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pergaminho border-2 border-dourado mb-5">
+        <span class="font-display font-bold text-sacre text-xl counter" data-target="7" data-decimals="0">7</span>
+      </div>
+      <h2 class="font-display text-xl md:text-2xl font-bold mb-3">Garantia incondicional de 7 dias</h2>
+      <p class="text-grafite/80 leading-relaxed max-w-lg mx-auto">
+        Se nos primeiros 7 dias você sentir que o curso não é para você, basta pedir o
+        reembolso — sem burocracia, sem perguntas. O risco é todo meu.
+      </p>
+    </div>
+  </section>
+
+  <!-- 9. FAQ — fundo claro -->
+  <section class="bg-pergaminho">
+    <div class="max-w-2xl mx-auto px-6 py-16 md:py-20">
+      <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-10">Perguntas frequentes</h2>
+      <div class="space-y-3" id="faq">
+
+        <div class="faq-item bg-white rounded-xl border border-salvia/30 overflow-hidden" data-open="false">
+          <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-display font-bold text-grafite" aria-expanded="false">
+            <span>Esse curso é para mim?</span>
+            <span class="faq-icon text-dourado text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="px-5 pb-4 text-sm text-grafite/80 leading-relaxed">
+              É recomendado para quem busca dar os primeiros passos no mundo dos investimentos.
+              Não é indicado se você já tem conhecimento avançado sobre produtos de investimento.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white rounded-xl border border-salvia/30 overflow-hidden" data-open="false">
+          <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-display font-bold text-grafite" aria-expanded="false">
+            <span>Preciso ter algum conhecimento prévio?</span>
+            <span class="faq-icon text-dourado text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="px-5 pb-4 text-sm text-grafite/80 leading-relaxed">
+              Não é necessário nenhum pré-requisito em termos de conhecimento de investimentos.
+              Só recomendamos noções básicas de matemática, que a maioria das pessoas já usa no
+              dia a dia.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white rounded-xl border border-salvia/30 overflow-hidden" data-open="false">
+          <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-display font-bold text-grafite" aria-expanded="false">
+            <span>O que está incluso no curso?</span>
+            <span class="faq-icon text-dourado text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="px-5 pb-4 text-sm text-grafite/80 leading-relaxed">
+              Acesso completo e irrestrito à plataforma de aulas, com vídeo-aulas gravadas e
+              materiais complementares (slides, relatórios, planilhas e links para leituras
+              complementares).
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white rounded-xl border border-salvia/30 overflow-hidden" data-open="false">
+          <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-display font-bold text-grafite" aria-expanded="false">
+            <span>Por onde e por quanto tempo posso acessar o conteúdo?</span>
+            <span class="faq-icon text-dourado text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="px-5 pb-4 text-sm text-grafite/80 leading-relaxed">
+              O conteúdo fica na plataforma da Hotmart, acessível pelo celular, tablet ou
+              computador. O acesso vale por 12 meses a partir da compra.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white rounded-xl border border-salvia/30 overflow-hidden" data-open="false">
+          <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-display font-bold text-grafite" aria-expanded="false">
+            <span>O curso tem certificado?</span>
+            <span class="faq-icon text-dourado text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="px-5 pb-4 text-sm text-grafite/80 leading-relaxed">
+              Sim. Ao concluir 100% das aulas, você emite automaticamente na plataforma um
+              certificado digital de 6 horas, emitido pela Sacre Educação Financeira como
+              "Curso Livre".
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white rounded-xl border border-salvia/30 overflow-hidden" data-open="false">
+          <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-display font-bold text-grafite" aria-expanded="false">
+            <span>Como funciona o suporte para dúvidas?</span>
+            <span class="faq-icon text-dourado text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="px-5 pb-4 text-sm text-grafite/80 leading-relaxed">
+              Você tem acesso direto aos especialistas em investimentos pela área de comentários
+              ou por e-mail, com resposta em até 72 horas úteis. E, como bônus, também tem acesso
+              direto ao WhatsApp do Gustavo para tirar suas dúvidas sempre que precisar.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white rounded-xl border border-salvia/30 overflow-hidden" data-open="false">
+          <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-display font-bold text-grafite" aria-expanded="false">
+            <span>Como funciona o pagamento?</span>
+            <span class="faq-icon text-dourado text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="px-5 pb-4 text-sm text-grafite/80 leading-relaxed">
+              Você pode pagar à vista por Pix, boleto, transferência ou cartão de crédito, ou
+              parcelar em até 12x no cartão.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. CTA FINAL — fundo escuro -->
+  <section class="bg-patrimonio text-pergaminho">
+    <div class="max-w-2xl mx-auto px-6 py-16 md:py-20 text-center">
+      <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">
+        Pare de adiar por medo. Aprenda o caminho certo.
+      </h2>
+      <p class="text-salvia mb-8 max-w-lg mx-auto leading-relaxed">
+        Sem enrolação, sem promessa de ganho fácil — o conhecimento que você precisa para dar
+        o primeiro passo com segurança.
+      </p>
+      <a
+        href="https://go.hotmart.com/U88616957P?ap=e4d0"
+        data-cta
+        class="js-checkout-link inline-flex items-center justify-center gap-2 bg-dourado text-grafite font-display font-bold text-base md:text-lg px-8 py-4 rounded-lg hover:bg-salvia transition-colors w-full sm:w-auto"
+      >
+        Quero aprender o caminho certo
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- 11. FOOTER — fundo escuro -->
+<footer class="bg-patrimonio text-salvia border-t border-sacre">
+  <div class="max-w-5xl mx-auto px-6 py-10">
+    <p class="text-xs leading-relaxed max-w-3xl mb-4">
+      Este curso tem conteúdo exclusivamente educativo e não constitui recomendação de
+      investimento, oferta ou solicitação de compra ou venda de qualquer ativo financeiro.
+      Rentabilidade passada não representa garantia de rentabilidade futura. Todas as estratégias
+      e investimentos envolvem algum risco de perda financeira. Antes de investir, avalie seus
+      objetivos, seu perfil de risco e, se necessário, procure orientação profissional
+      individualizada. Dúvidas: <a href="mailto:educacional@valorsacre.com.br" class="underline hover:text-dourado transition-colors">educacional@valorsacre.com.br</a>.
+    </p>
+    <p class="text-xs leading-relaxed max-w-3xl mb-6 opacity-80">
+      Este produto é comercializado com apoio da Hotmart. A Hotmart não faz controle editorial
+      prévio dos produtos comercializados em sua plataforma, nem avalia a técnica e a experiência
+      de quem os produz.
+    </p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs">
+      <p>&copy; <span id="ano"></span> Sacre Educação Financeira LTDA · CNPJ 45.091.223/0001-40</p>
+      <div class="flex gap-5">
+        <a href="./termos.html" class="hover:text-dourado transition-colors">Termos de Uso</a>
+        <a href="./privacidade.html" class="hover:text-dourado transition-colors">Política de Privacidade</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const CHECKOUT_URL = 'https://go.hotmart.com/U88616957P?ap=e4d0'
+
+  document.getElementById('ano').textContent = new Date().getFullYear()
+
+  // Encaminha os parâmetros UTM da URL da LP para os links de checkout,
+  // preservando a atribuição de tráfego (ex.: campanhas do TikTok).
+  function buildCheckoutHref() {
+    const params = new URLSearchParams(window.location.search)
+    const utmParams = new URLSearchParams()
+    params.forEach((value, key) => {
+      if (key.toLowerCase().startsWith('utm_')) utmParams.set(key, value)
+    })
+    const query = utmParams.toString()
+    if (!query) return CHECKOUT_URL
+    const separator = CHECKOUT_URL.includes('?') ? '&' : '?'
+    return CHECKOUT_URL + separator + query
+  }
+
+  document.querySelectorAll('.js-checkout-link').forEach((link) => {
+    link.href = buildCheckoutHref()
+  })
+
+  // Accordion do FAQ
+  document.querySelectorAll('.faq-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+      const item = button.closest('.faq-item')
+      const isOpen = item.getAttribute('data-open') === 'true'
+      item.setAttribute('data-open', isOpen ? 'false' : 'true')
+      button.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
+    })
+  })
+
+  // Pequenas animações de entrada e contadores — desligadas para quem
+  // prefere menos movimento (prefers-reduced-motion).
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  function animateCounter(el) {
+    const target = parseFloat(el.dataset.target)
+    const decimals = parseInt(el.dataset.decimals || '0', 10)
+    const prefix = el.dataset.prefix || ''
+    const suffix = el.dataset.suffix || ''
+    const duration = 1200
+    const start = performance.now()
+
+    function tick(now) {
+      const progress = Math.min((now - start) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const value = target * eased
+      el.textContent = prefix + value.toLocaleString('pt-BR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }) + suffix
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+
+  if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        entry.target.classList.add('is-visible')
+        revealObserver.unobserve(entry.target)
+      })
+    }, { threshold: 0.15 })
+    document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el))
+
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        animateCounter(entry.target)
+        counterObserver.unobserve(entry.target)
+      })
+    }, { threshold: 0.6 })
+    document.querySelectorAll('.counter').forEach((el) => counterObserver.observe(el))
+  }
+</script>
+
+</body>
+</html>

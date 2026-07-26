@@ -80,12 +80,35 @@
         de ganho fácil, pela mesma equipe que já orienta milhares de pessoas em todo o Brasil.
       </p>
 
-      <div class="rounded-xl overflow-hidden border border-sacre mb-8 max-w-2xl aspect-video bg-sacre/40 flex items-center justify-center">
-        <img
-          src="https://placehold.co/800x450/0B3A2A/C2A14E?text=V%C3%ADdeo+do+Curso"
-          alt="Vídeo de apresentação do curso Start, com Thiago Blanco"
+      <!--
+        TESTE: vídeo de exemplo enviado pelo cliente, só para simular como
+        fica a página com vídeo real (autoplay mudo). Trocar
+        public/video/hero-teste.mp4 e public/video/hero-teste-poster.jpg
+        pelo vídeo final quando estiver pronto — mesmos nomes de arquivo,
+        ou atualizar os caminhos abaixo.
+      -->
+      <div class="relative rounded-xl overflow-hidden border border-sacre mb-8 max-w-2xl aspect-video bg-sacre/40">
+        <video
+          id="hero-video"
           class="w-full h-full object-cover"
+          autoplay
+          muted
+          loop
+          playsinline
+          poster="./video/hero-teste-poster.jpg"
+          aria-label="Vídeo de apresentação do curso Start"
         >
+          <source src="./video/hero-teste.mp4" type="video/mp4">
+        </video>
+        <button
+          type="button"
+          id="hero-video-mute-toggle"
+          class="absolute bottom-3 right-3 bg-patrimonio/80 text-pergaminho text-xs font-display font-bold px-3 py-2 rounded-lg hover:bg-sacre transition-colors flex items-center gap-2"
+          aria-pressed="false"
+        >
+          <span id="hero-video-mute-icon" aria-hidden="true">🔇</span>
+          <span id="hero-video-mute-label">Ativar som</span>
+        </button>
       </div>
 
       <a
@@ -526,6 +549,19 @@
   document.querySelectorAll('.js-checkout-link').forEach((link) => {
     link.href = buildCheckoutHref()
   })
+
+  // Botão de som do vídeo do hero — autoplay só é permitido pelo navegador
+  // com o vídeo mudo, então damos a opção de ativar o som manualmente.
+  const heroVideo = document.getElementById('hero-video')
+  const muteToggle = document.getElementById('hero-video-mute-toggle')
+  if (heroVideo && muteToggle) {
+    muteToggle.addEventListener('click', () => {
+      heroVideo.muted = !heroVideo.muted
+      muteToggle.setAttribute('aria-pressed', String(!heroVideo.muted))
+      document.getElementById('hero-video-mute-icon').textContent = heroVideo.muted ? '🔇' : '🔊'
+      document.getElementById('hero-video-mute-label').textContent = heroVideo.muted ? 'Ativar som' : 'Silenciar'
+    })
+  }
 
   // Accordion do FAQ
   document.querySelectorAll('.faq-toggle').forEach((button) => {

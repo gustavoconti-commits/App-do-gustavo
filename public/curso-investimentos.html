@@ -45,6 +45,24 @@
   .faq-item[data-open="true"] .faq-answer { grid-template-rows: 1fr; }
   .faq-item[data-open="true"] .faq-icon { transform: rotate(45deg); }
   .faq-icon { transition: transform .2s ease; }
+  .faq-item { transition: border-color .2s ease; }
+  .faq-item:hover { border-color: #C2A14E; }
+
+  /* Pequenas animações — sempre respeitando quem prefere menos movimento */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-group > .reveal:nth-child(2) { transition-delay: .08s; }
+    .reveal-group > .reveal:nth-child(3) { transition-delay: .16s; }
+    .reveal-group > .reveal:nth-child(4) { transition-delay: .24s; }
+
+    .card-hover { transition: transform .2s ease, box-shadow .2s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(11,58,42,.12); }
+  }
 </style>
 </head>
 <body class="bg-pergaminho text-grafite antialiased">
@@ -99,22 +117,22 @@
         milhares de pessoas, todos os dias, a organizar sua vida financeira com clareza — sem
         promessa de ganho fácil e sem recomendação de ativo específico.
       </p>
-      <div class="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-14">
-        <div class="text-center">
-          <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1">+5.000</p>
+      <div class="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto mb-14 reveal-group">
+        <div class="text-center reveal">
+          <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1 counter" data-target="5000" data-decimals="0" data-prefix="+">+5.000</p>
           <p class="text-sm text-grafite/70">clientes atendidos em todo o Brasil</p>
         </div>
-        <div class="text-center">
+        <div class="text-center reveal">
           <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1">R$ 1 bi+</p>
           <p class="text-sm text-grafite/70">sob assessoria</p>
         </div>
-        <div class="text-center">
-          <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1">9,2/10</p>
+        <div class="text-center reveal">
+          <p class="font-display text-3xl md:text-4xl font-bold text-sacre mb-1 counter" data-target="9.2" data-decimals="1" data-suffix="/10">9,2/10</p>
           <p class="text-sm text-grafite/70">nota de recomendação (NPS) dos clientes</p>
         </div>
       </div>
 
-      <div class="grid md:grid-cols-[160px_1fr] gap-8 items-start max-w-3xl mx-auto border-t border-salvia/30 pt-10">
+      <div class="grid md:grid-cols-[160px_1fr] gap-8 items-start max-w-3xl mx-auto border-t border-salvia/30 pt-10 reveal">
         <img
           src="https://placehold.co/320x320/8AA593/2B2D28?text=Thiago+Blanco"
           alt="Foto de Thiago Blanco, instrutor do curso"
@@ -143,22 +161,22 @@
       <p class="text-grafite/70 text-center max-w-2xl mx-auto mb-12">
         Nenhum deles é bobagem. São os mesmos que eu ouço, toda semana, de quem chega até mim.
       </p>
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30">
+      <div class="grid md:grid-cols-3 gap-6 reveal-group">
+        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30 reveal card-hover">
           <h3 class="font-display font-bold text-sacre text-lg mb-2">"Tenho medo de perder dinheiro"</h3>
           <p class="text-grafite/80 leading-relaxed text-sm">
             Ninguém te ensinou a diferença entre investir com critério e apostar. Sem essa base,
             o medo é o comportamento certo — mas ele não precisa te paralisar para sempre.
           </p>
         </div>
-        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30">
+        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30 reveal card-hover">
           <h3 class="font-display font-bold text-sacre text-lg mb-2">"Não sei por onde começar"</h3>
           <p class="text-grafite/80 leading-relaxed text-sm">
             Tesouro, CDB, fundo, ação, reserva de emergência — a quantidade de termos assusta antes
             mesmo de você dar o primeiro passo. Falta um caminho, não falta interesse.
           </p>
         </div>
-        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30">
+        <div class="bg-pergaminho rounded-xl p-6 border border-salvia/30 reveal card-hover">
           <h3 class="font-display font-bold text-sacre text-lg mb-2">"Não confio em quem promete ganho fácil"</h3>
           <p class="text-grafite/80 leading-relaxed text-sm">
             Você já viu gente prometendo rentabilidade garantida e método infalível. Está certo em
@@ -200,8 +218,8 @@
         <span>12 meses de acesso</span>
       </div>
 
-      <div class="grid sm:grid-cols-2 gap-5">
-        <div class="p-6 rounded-xl bg-pergaminho">
+      <div class="grid sm:grid-cols-2 gap-5 reveal-group">
+        <div class="p-6 rounded-xl bg-pergaminho reveal card-hover">
           <h3 class="font-display font-bold text-sacre mb-3">1. Planejamento e fundamentos</h3>
           <ul class="space-y-2 text-sm text-grafite/85">
             <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Orçamento Familiar</li>
@@ -211,14 +229,14 @@
             <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Criando minha Reserva de Emergência</li>
           </ul>
         </div>
-        <div class="p-6 rounded-xl bg-pergaminho">
+        <div class="p-6 rounded-xl bg-pergaminho reveal card-hover">
           <h3 class="font-display font-bold text-sacre mb-3">2. Economia na prática</h3>
           <ul class="space-y-2 text-sm text-grafite/85">
             <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Juros, Vilão ou Aliado?</li>
             <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Tipos de Inflação</li>
           </ul>
         </div>
-        <div class="p-6 rounded-xl bg-pergaminho sm:col-span-2">
+        <div class="p-6 rounded-xl bg-pergaminho sm:col-span-2 reveal card-hover">
           <h3 class="font-display font-bold text-sacre mb-3">3. Onde investir</h3>
           <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-grafite/85">
             <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Renda Fixa ou Variável?</li>
@@ -232,7 +250,7 @@
             <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Operando Derivativos</li>
           </ul>
         </div>
-        <div class="p-6 rounded-xl bg-pergaminho sm:col-span-2">
+        <div class="p-6 rounded-xl bg-pergaminho sm:col-span-2 reveal card-hover">
           <h3 class="font-display font-bold text-sacre mb-3">4. Ferramentas de análise</h3>
           <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-grafite/85">
             <li class="flex gap-2"><span class="text-dourado shrink-0">＋</span> Análise Técnica</li>
@@ -247,22 +265,22 @@
   <section class="bg-patrimonio text-pergaminho">
     <div class="max-w-5xl mx-auto px-6 py-16 md:py-20">
       <h2 class="font-display text-2xl md:text-3xl font-bold text-center mb-12">Quem já fez, conta</h2>
-      <div class="grid md:grid-cols-3 gap-6">
-        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre">
+      <div class="grid md:grid-cols-3 gap-6 reveal-group">
+        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre reveal card-hover">
           <p class="text-salvia leading-relaxed text-sm mb-4">
             "Eu adiava investir há anos porque não entendia nada e tinha vergonha de perguntar.
             O curso explicou do zero, no meu ritmo, e hoje eu entendo o que estou fazendo."
           </p>
           <footer class="font-display font-bold text-dourado text-sm">— Aluna, turma de iniciantes</footer>
         </blockquote>
-        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre">
+        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre reveal card-hover">
           <p class="text-salvia leading-relaxed text-sm mb-4">
             "O que mais mudou foi a confiança. Antes eu não sabia diferenciar uma indicação séria
             de uma promessa milagrosa. Agora eu sei fazer essa pergunta sozinho."
           </p>
           <footer class="font-display font-bold text-dourado text-sm">— Aluno, turma de iniciantes</footer>
         </blockquote>
-        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre">
+        <blockquote class="bg-sacre/30 rounded-xl p-6 border border-sacre reveal card-hover">
           <p class="text-salvia leading-relaxed text-sm mb-4">
             "Finalmente organizei minha reserva de emergência e entendi as opções que tinha antes
             de decidir qualquer coisa. Sem pressa, sem susto."
@@ -276,7 +294,7 @@
   <!-- 7. PREÇO + BÔNUS — fundo claro -->
   <section class="bg-pergaminho">
     <div class="max-w-2xl mx-auto px-6 py-16 md:py-20">
-      <div class="bg-white rounded-2xl border-2 border-dourado p-8 md:p-10 text-center shadow-sm">
+      <div class="bg-white rounded-2xl border-2 border-dourado p-8 md:p-10 text-center shadow-sm reveal card-hover">
         <p class="font-display font-bold text-sacre tracking-widest text-xs uppercase mb-3">
           Start — os primeiros passos nos investimentos
         </p>
@@ -319,9 +337,9 @@
 
   <!-- 8. GARANTIA — fundo claro -->
   <section class="bg-white">
-    <div class="max-w-2xl mx-auto px-6 py-14 md:py-16 text-center">
+    <div class="max-w-2xl mx-auto px-6 py-14 md:py-16 text-center reveal">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-pergaminho border-2 border-dourado mb-5">
-        <span class="font-display font-bold text-sacre text-xl">7</span>
+        <span class="font-display font-bold text-sacre text-xl counter" data-target="7" data-decimals="0">7</span>
       </div>
       <h2 class="font-display text-xl md:text-2xl font-bold mb-3">Garantia incondicional de 7 dias</h2>
       <p class="text-grafite/80 leading-relaxed max-w-lg mx-auto">
@@ -522,6 +540,51 @@
       button.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
     })
   })
+
+  // Pequenas animações de entrada e contadores — desligadas para quem
+  // prefere menos movimento (prefers-reduced-motion).
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  function animateCounter(el) {
+    const target = parseFloat(el.dataset.target)
+    const decimals = parseInt(el.dataset.decimals || '0', 10)
+    const prefix = el.dataset.prefix || ''
+    const suffix = el.dataset.suffix || ''
+    const duration = 1200
+    const start = performance.now()
+
+    function tick(now) {
+      const progress = Math.min((now - start) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const value = target * eased
+      el.textContent = prefix + value.toLocaleString('pt-BR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }) + suffix
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+
+  if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        entry.target.classList.add('is-visible')
+        revealObserver.unobserve(entry.target)
+      })
+    }, { threshold: 0.15 })
+    document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el))
+
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        animateCounter(entry.target)
+        counterObserver.unobserve(entry.target)
+      })
+    }, { threshold: 0.6 })
+    document.querySelectorAll('.counter').forEach((el) => counterObserver.observe(el))
+  }
 </script>
 
 </body>

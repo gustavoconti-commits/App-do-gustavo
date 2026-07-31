@@ -7,6 +7,7 @@ import { CaixaMarcacao } from '../components/CaixaMarcacao'
 import { GradeSemana } from '../components/GradeSemana'
 import { AlternadorModo } from '../components/AlternadorModo'
 import { GerenciarHabitosSheet } from '../components/GerenciarHabitosSheet'
+import { SecaoPesagens } from '../components/SecaoPesagens'
 import {
   hojeISO,
   formatarDataExtensa,
@@ -115,6 +116,8 @@ export function ProfileScreen({ nome }: { nome: 'Gustavo' | 'Júlia' }) {
           </div>
         </div>
       )}
+
+      <SecaoPesagens profileId={perfil?.id} corHex={perfil?.cor_hex ?? '#8A9099'} />
 
       <GerenciarHabitosSheet
         profileId={perfil?.id}

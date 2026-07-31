@@ -6,3 +6,8 @@ export async function listarPerfis(): Promise<Profile[]> {
   if (error) throw error
   return data
 }
+
+export async function atualizarAlturaPerfil(id: string, alturaCm: number | null): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ altura_cm: alturaCm }).eq('id', id)
+  if (error) throw error
+}

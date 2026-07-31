@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { listarHabitos } from '../services/habits'
 import { listarLogsNoPeriodo, marcarHabito, desmarcarHabito } from '../services/habitLogs'
 import { habitosDoDia, type HabitoParaPontos } from '../domain/pontos'
+import { useRecarregarQuandoMudar } from './useRealtimeInvalidation'
 import type { Habit } from '../types'
 
 function paraDominio(h: Habit): HabitoParaPontos {
@@ -30,6 +31,8 @@ export function useHabitosDoDia(profileId: string | undefined, dataISO: string) 
   useEffect(() => {
     carregar()
   }, [carregar])
+
+  useRecarregarQuandoMudar(['habit_logs'], carregar)
 
   async function alternar(habito: Habit) {
     if (!profileId) return

@@ -8,6 +8,7 @@ import {
 import { buscarFechamento } from '../services/monthlyClosings'
 import { recalcularAPartirDoMes, executarFechamentosPendentes } from '../services/fechamentoMensal'
 import { primeiroDiaDoMesISO } from '../utils/data'
+import { useRecarregarQuandoMudar } from './useRealtimeInvalidation'
 import type { WeighIn } from '../types'
 
 /** Se a data cair num mês já fechado, reabre e recalcula em cascata (seção
@@ -36,6 +37,8 @@ export function usePesagens(profileId: string | undefined) {
   useEffect(() => {
     carregar()
   }, [carregar])
+
+  useRecarregarQuandoMudar(['weigh_ins'], carregar)
 
   async function registrar(dataISO: string, pesoKg: number, observacao?: string) {
     if (!profileId) return

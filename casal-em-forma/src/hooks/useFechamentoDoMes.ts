@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { buscarFechamento } from '../services/monthlyClosings'
 import { infoDoMes, hojeISO } from '../utils/data'
+import { useRecarregarQuandoMudar } from './useRealtimeInvalidation'
 import type { MonthlyClosing } from '../types'
 
 export function useFechamentoDoMes(profileId: string | undefined) {
@@ -18,6 +19,8 @@ export function useFechamentoDoMes(profileId: string | undefined) {
   useEffect(() => {
     carregar()
   }, [carregar])
+
+  useRecarregarQuandoMudar(['monthly_closings'], carregar)
 
   return { fechamento, carregando, recarregar: carregar }
 }

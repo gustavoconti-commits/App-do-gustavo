@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { buscarMetaAnual, definirMetaAnual } from '../services/annualGoals'
 import { hojeISO } from '../utils/data'
+import { useRecarregarQuandoMudar } from './useRealtimeInvalidation'
 import type { AnnualGoal } from '../types'
 
 export function useMetaAnual(profileId: string | undefined) {
@@ -18,6 +19,8 @@ export function useMetaAnual(profileId: string | undefined) {
   useEffect(() => {
     carregar()
   }, [carregar])
+
+  useRecarregarQuandoMudar(['annual_goals'], carregar)
 
   async function definir(pesoBaseKg: number, kgAPerder: number) {
     if (!profileId) return

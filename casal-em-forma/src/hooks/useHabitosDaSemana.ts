@@ -3,6 +3,7 @@ import { listarHabitos } from '../services/habits'
 import { listarLogsNoPeriodo, marcarHabito, desmarcarHabito } from '../services/habitLogs'
 import { habitoAtivoNaData, habitoProgramadoNoDia, type HabitoParaPontos } from '../domain/pontos'
 import { diasDaSemana } from '../utils/data'
+import { useRecarregarQuandoMudar } from './useRealtimeInvalidation'
 import type { Habit } from '../types'
 
 function paraDominio(h: Habit): HabitoParaPontos {
@@ -40,6 +41,8 @@ export function useHabitosDaSemana(profileId: string | undefined, inicioSemanaIS
   useEffect(() => {
     carregar()
   }, [carregar])
+
+  useRecarregarQuandoMudar(['habit_logs'], carregar)
 
   function marcado(habitId: string, dataISO: string): boolean {
     return marcados.has(`${habitId}|${dataISO}`)

@@ -13,6 +13,7 @@ import {
   calcularCofrinho,
   type HabitoParaPontos,
 } from '../domain/pontos'
+import { useRecarregarQuandoMudar } from './useRealtimeInvalidation'
 import { hojeISO, diasAtrasISO } from '../utils/data'
 import type {
   Habit,
@@ -115,6 +116,11 @@ export function usePontosDoCasal(perfis: Profile[]) {
   useEffect(() => {
     carregar()
   }, [carregar])
+
+  useRecarregarQuandoMudar(
+    ['habit_logs', 'ledger', 'redemptions', 'transfers', 'piggy_withdrawals'],
+    carregar,
+  )
 
   return { settings, pessoas, resgates, transferencias, saques, carregando, recarregar: carregar }
 }

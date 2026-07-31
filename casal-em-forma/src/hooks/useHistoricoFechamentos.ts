@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { listarFechamentos } from '../services/monthlyClosings'
+import { useRecarregarQuandoMudar } from './useRealtimeInvalidation'
 import type { MonthlyClosing } from '../types'
 
 export function useHistoricoFechamentos(profileId: string | undefined) {
@@ -16,6 +17,8 @@ export function useHistoricoFechamentos(profileId: string | undefined) {
   useEffect(() => {
     carregar()
   }, [carregar])
+
+  useRecarregarQuandoMudar(['monthly_closings'], carregar)
 
   return { fechamentos, carregando, recarregar: carregar }
 }

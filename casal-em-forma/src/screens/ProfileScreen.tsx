@@ -1,22 +1,39 @@
 import { useState } from 'react'
 import { usePerfis } from '../hooks/usePerfis'
 import { useHabitosDoDia } from '../hooks/useHabitosDoDia'
+import { useHabitosDaSemana } from '../hooks/useHabitosDaSemana'
+import { useModoVisualizacao } from '../hooks/useModoVisualizacao'
 import { CaixaMarcacao } from '../components/CaixaMarcacao'
+import { GradeSemana } from '../components/GradeSemana'
+import { AlternadorModo } from '../components/AlternadorModo'
 import { GerenciarHabitosSheet } from '../components/GerenciarHabitosSheet'
-import { hojeISO, formatarDataExtensa } from '../utils/data'
+import {
+  hojeISO,
+  formatarDataExtensa,
+  inicioDaSemanaISO,
+  semanaAnteriorISO,
+  semanaSeguinteISO,
+  formatarIntervaloSemana,
+} from '../utils/data'
 
 export function ProfileScreen({ nome }: { nome: 'Gustavo' | 'Júlia' }) {
   const { porNome, carregando: carregandoPerfis } = usePerfis()
   const perfil = porNome(nome)
   const dataISO = hojeISO()
-  const { habitos, marcados, carregando, alternar, recarregar } = useHabitosDoDia(
-    perfil?.id,
-    dataISO,
-  )
+  const { modo, setModo } = useModoVisualizacao()
+  const [inicioSemana, setInicioSemana] = useState(() => inicioDaSemanaISO(dataISO))
   const [gerenciarAberto, setGerenciarAberto] = useState(false)
+
+  const modoHoje = useHabitosDoDia(perfil?.id, dataISO)
+  const modoSemana = useHabitosDaSemana(perfil?.id, inicioSemana)
 
   if (carregandoPerfis) {
     return <div className="px-4 pb-24 pt-6" />
+  }
+
+  function aoMudarModoOuArquivo() {
+    modoHoje.recarregar()
+    modoSemana.recarregar()
   }
 
   return (
@@ -31,7 +48,7 @@ export function ProfileScreen({ nome }: { nome: 'Gustavo' | 'Júlia' }) {
       </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <h2 className="text-sm text-texto-fraco">Hábitos de hoje</h2>
+        <AlternadorModo modo={modo} aoMudar={setModo} />
         <button
           type="button"
           onClick={() => setGerenciarAberto(true)}
@@ -41,28 +58,69 @@ export function ProfileScreen({ nome }: { nome: 'Gustavo' | 'Júlia' }) {
         </button>
       </div>
 
-      <div className="mt-2 divide-y divide-borda rounded-card border border-borda bg-superficie">
-        {!carregando && habitos.length === 0 && (
-          <p className="px-4 py-6 text-sm text-texto-fraco">
-            Nenhum hábito programado para hoje. Adicione um em "Gerenciar hábitos".
-          </p>
-        )}
-        {habitos.map((habito) => (
-          <div key={habito.id} className="flex items-center justify-between px-4 py-2">
-            <span className="text-base">{habito.nome}</span>
-            <CaixaMarcacao
-              marcada={marcados.has(habito.id)}
-              aoAlternar={() => alternar(habito)}
-            />
+      {modo === 'hoje' ? (
+        <div className="mt-4 divide-y divide-borda rounded-card border border-borda bg-superficie">
+          {!modoHoje.carregando && modoHoje.habitos.length === 0 && (
+            <p className="px-4 py-6 text-sm text-texto-fraco">
+              Nenhum hábito programado para hoje. Adicione um em "Gerenciar hábitos".
+            </p>
+          )}
+          {modoHoje.habitos.map((habito) => (
+            <div key={habito.id} className="flex items-center justify-between px-4 py-2">
+              <span className="text-base">{habito.nome}</span>
+              <CaixaMarcacao
+                marcada={modoHoje.marcados.has(habito.id)}
+                aoAlternar={() => modoHoje.alternar(habito)}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setInicioSemana(semanaAnteriorISO(inicioSemana))}
+              className="flex h-11 w-11 items-center justify-center text-texto-fraco"
+              aria-label="Semana anterior"
+            >
+              ‹
+            </button>
+            <span className="num text-sm text-texto-fraco">
+              {formatarIntervaloSemana(inicioSemana)}
+            </span>
+            <button
+              type="button"
+              onClick={() => setInicioSemana(semanaSeguinteISO(inicioSemana))}
+              className="flex h-11 w-11 items-center justify-center text-texto-fraco"
+              aria-label="Próxima semana"
+            >
+              ›
+            </button>
           </div>
-        ))}
-      </div>
+          <div className="mt-2 rounded-card border border-borda bg-superficie p-2">
+            {!modoSemana.carregando && modoSemana.habitos.length === 0 && (
+              <p className="px-2 py-6 text-sm text-texto-fraco">
+                Nenhum hábito ativo nesta semana.
+              </p>
+            )}
+            {modoSemana.habitos.length > 0 && (
+              <GradeSemana
+                dias={modoSemana.dias}
+                habitos={modoSemana.habitos}
+                marcado={modoSemana.marcado}
+                aoAlternar={modoSemana.alternar}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       <GerenciarHabitosSheet
         profileId={perfil?.id}
         aberto={gerenciarAberto}
         aoFechar={() => setGerenciarAberto(false)}
-        aoMudar={recarregar}
+        aoMudar={aoMudarModoOuArquivo}
       />
     </div>
   )

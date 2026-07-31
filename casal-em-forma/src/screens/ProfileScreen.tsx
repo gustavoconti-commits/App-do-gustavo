@@ -8,6 +8,9 @@ import { GradeSemana } from '../components/GradeSemana'
 import { AlternadorModo } from '../components/AlternadorModo'
 import { GerenciarHabitosSheet } from '../components/GerenciarHabitosSheet'
 import { SecaoPesagens } from '../components/SecaoPesagens'
+import { SecaoMetaAnual } from '../components/SecaoMetaAnual'
+import { SecaoMetaMes } from '../components/SecaoMetaMes'
+import { usePesagens } from '../hooks/usePesagens'
 import {
   hojeISO,
   formatarDataExtensa,
@@ -27,6 +30,7 @@ export function ProfileScreen({ nome }: { nome: 'Gustavo' | 'Júlia' }) {
 
   const modoHoje = useHabitosDoDia(perfil?.id, dataISO)
   const modoSemana = useHabitosDaSemana(perfil?.id, inicioSemana)
+  const { pesagens } = usePesagens(perfil?.id)
 
   if (carregandoPerfis) {
     return <div className="px-4 pb-24 pt-6" />
@@ -118,6 +122,8 @@ export function ProfileScreen({ nome }: { nome: 'Gustavo' | 'Júlia' }) {
       )}
 
       <SecaoPesagens profileId={perfil?.id} corHex={perfil?.cor_hex ?? '#8A9099'} />
+      <SecaoMetaAnual profileId={perfil?.id} ultimaPesagem={pesagens[pesagens.length - 1]} />
+      <SecaoMetaMes profileId={perfil?.id} />
 
       <GerenciarHabitosSheet
         profileId={perfil?.id}

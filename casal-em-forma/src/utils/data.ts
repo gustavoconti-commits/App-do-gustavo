@@ -1,4 +1,4 @@
-import { format, startOfWeek, addDays } from 'date-fns'
+import { format, startOfWeek, startOfMonth, endOfMonth, addDays, addMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 export function hojeISO(): string {
@@ -45,4 +45,40 @@ export function formatarIntervaloSemana(inicioSemanaISO: string): string {
 
 export function iniciaisDia(dataISO: string): string {
   return format(paraData(dataISO), 'EEEEEE', { locale: ptBR })
+}
+
+export function primeiroDiaDoMesISO(dataISO: string): string {
+  return format(startOfMonth(paraData(dataISO)), 'yyyy-MM-dd')
+}
+
+export function ultimoDiaDoMesISO(dataISO: string): string {
+  return format(endOfMonth(paraData(dataISO)), 'yyyy-MM-dd')
+}
+
+export type InfoMes = { ano: number; mes: number; anoMesISO: string }
+
+export function infoDoMes(dataISO: string): InfoMes {
+  const inicio = startOfMonth(paraData(dataISO))
+  return { ano: inicio.getFullYear(), mes: inicio.getMonth() + 1, anoMesISO: format(inicio, 'yyyy-MM-dd') }
+}
+
+/** Meses de calendário inteiros entre `dataInicioISO` e o mês de `hojeISO`,
+ *  excluindo o mês corrente (esse fica sempre como prévia, nunca fechado). */
+export function mesesFechaveis(dataInicioISO: string, hojeISO: string): InfoMes[] {
+  const mesAtual = startOfMonth(paraData(hojeISO))
+  let cursor = startOfMonth(paraData(dataInicioISO))
+  const meses: InfoMes[] = []
+  while (cursor.getTime() < mesAtual.getTime()) {
+    meses.push({
+      ano: cursor.getFullYear(),
+      mes: cursor.getMonth() + 1,
+      anoMesISO: format(cursor, 'yyyy-MM-dd'),
+    })
+    cursor = addMonths(cursor, 1)
+  }
+  return meses
+}
+
+export function mesAnteriorISO(anoMesISO: string): string {
+  return format(addMonths(paraData(anoMesISO), -1), 'yyyy-MM-dd')
 }

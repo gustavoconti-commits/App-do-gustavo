@@ -5,10 +5,14 @@ import { ProfileScreen } from './screens/ProfileScreen'
 import { PontosScreen } from './screens/PontosScreen'
 import { LoginScreen } from './screens/LoginScreen'
 import { useAuth } from './hooks/useAuth'
+import { usePerfis } from './hooks/usePerfis'
+import { useFechamentoAutomatico } from './hooks/useFechamentoAutomatico'
 
 function App() {
   const [abaAtiva, setAbaAtiva] = useState<Aba>('casal')
   const { logado, carregando } = useAuth()
+  const { perfis } = usePerfis()
+  useFechamentoAutomatico(logado ? perfis.map((p) => p.id) : [])
 
   if (carregando) {
     return <div className="min-h-full bg-fundo" />

@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-fundo text-texto font-body antialiased;
+    font-size: 15px;
+  }
+
+  h1,
+  h2,
+  .num-display {
+    @apply font-display;
+    letter-spacing: -0.02em;
+  }
+
+  .num {
+    @apply font-mono tabular-nums;
+  }
+}
+
+/* Pulso único do Anel do Dia ao completar (seção 3.3) — anulado pelo bloco
+   de prefers-reduced-motion abaixo. */
+@keyframes anel-pulso {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.anel-pulso {
+  animation: anel-pulso 600ms ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

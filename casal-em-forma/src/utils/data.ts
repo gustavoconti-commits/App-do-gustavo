@@ -1,0 +1,97 @@
+import { format, startOfWeek, startOfMonth, endOfMonth, addDays, addMonths } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+
+export function hojeISO(): string {
+  return format(new Date(), 'yyyy-MM-dd')
+}
+
+export function formatarDataExtensa(dataISO: string): string {
+  return format(new Date(`${dataISO}T12:00:00`), "EEEE, d 'de' MMMM", { locale: ptBR })
+}
+
+export function formatarDataCurta(dataISO: string): string {
+  return format(new Date(`${dataISO}T12:00:00`), 'dd/MM', { locale: ptBR })
+}
+
+function paraData(dataISO: string): Date {
+  return new Date(`${dataISO}T12:00:00`)
+}
+
+/** Segunda-feira (ISO, weekStartsOn: 1) da semana que contém a data dada. */
+export function inicioDaSemanaISO(dataISO: string): string {
+  return format(startOfWeek(paraData(dataISO), { weekStartsOn: 1 }), 'yyyy-MM-dd')
+}
+
+/** Os 7 dias (segunda a domingo) da semana que começa em `inicioSemanaISO`. */
+export function diasDaSemana(inicioSemanaISO: string): string[] {
+  const inicio = paraData(inicioSemanaISO)
+  return Array.from({ length: 7 }, (_, i) => format(addDays(inicio, i), 'yyyy-MM-dd'))
+}
+
+export function semanaAnteriorISO(inicioSemanaISO: string): string {
+  return format(addDays(paraData(inicioSemanaISO), -7), 'yyyy-MM-dd')
+}
+
+export function semanaSeguinteISO(inicioSemanaISO: string): string {
+  return format(addDays(paraData(inicioSemanaISO), 7), 'yyyy-MM-dd')
+}
+
+export function formatarIntervaloSemana(inicioSemanaISO: string): string {
+  const dias = diasDaSemana(inicioSemanaISO)
+  const inicio = format(paraData(dias[0]), 'd/MM')
+  const fim = format(paraData(dias[6]), 'd/MM')
+  return `${inicio} – ${fim}`
+}
+
+export function iniciaisDia(dataISO: string): string {
+  return format(paraData(dataISO), 'EEEEEE', { locale: ptBR })
+}
+
+export function primeiroDiaDoMesISO(dataISO: string): string {
+  return format(startOfMonth(paraData(dataISO)), 'yyyy-MM-dd')
+}
+
+export function ultimoDiaDoMesISO(dataISO: string): string {
+  return format(endOfMonth(paraData(dataISO)), 'yyyy-MM-dd')
+}
+
+export type InfoMes = { ano: number; mes: number; anoMesISO: string }
+
+export function infoDoMes(dataISO: string): InfoMes {
+  const inicio = startOfMonth(paraData(dataISO))
+  return { ano: inicio.getFullYear(), mes: inicio.getMonth() + 1, anoMesISO: format(inicio, 'yyyy-MM-dd') }
+}
+
+/** Meses de calendário inteiros entre `dataInicioISO` e o mês de `hojeISO`,
+ *  excluindo o mês corrente (esse fica sempre como prévia, nunca fechado). */
+export function mesesFechaveis(dataInicioISO: string, hojeISO: string): InfoMes[] {
+  const mesAtual = startOfMonth(paraData(hojeISO))
+  let cursor = startOfMonth(paraData(dataInicioISO))
+  const meses: InfoMes[] = []
+  while (cursor.getTime() < mesAtual.getTime()) {
+    meses.push({
+      ano: cursor.getFullYear(),
+      mes: cursor.getMonth() + 1,
+      anoMesISO: format(cursor, 'yyyy-MM-dd'),
+    })
+    cursor = addMonths(cursor, 1)
+  }
+  return meses
+}
+
+export function mesAnteriorISO(anoMesISO: string): string {
+  return format(addMonths(paraData(anoMesISO), -1), 'yyyy-MM-dd')
+}
+
+export function diasAtrasISO(dataISO: string, dias: number): string {
+  return format(addDays(paraData(dataISO), -dias), 'yyyy-MM-dd')
+}
+
+/** Os últimos 7 dias terminando em `dataISO`, em ordem cronológica. */
+export function ultimosSeteDias(dataISO: string): string[] {
+  return Array.from({ length: 7 }, (_, i) => diasAtrasISO(dataISO, 6 - i))
+}
+
+export function formatarMesCurto(anoMesISO: string): string {
+  return format(paraData(anoMesISO), 'MMM/yy', { locale: ptBR })
+}

@@ -32,3 +32,16 @@ supabase/
 ## Início da apuração
 
 `data_inicio` em `settings` = 01/08/2026. Nada antes disso pontua.
+
+## PWA e deploy
+
+O `vite-plugin-pwa` gera `manifest.webmanifest` e o service worker no build:
+assets estáticos pré-cacheados, dados do Supabase em `NetworkFirst`. O app é
+instalável na tela inicial (ícones 192/512 + apple-touch-icon em `public/`).
+
+Deploy: conectar o repositório ao Vercel apontando o root para
+`casal-em-forma/`, com `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e
+`VITE_APP_EMAIL` nas variáveis de ambiente do projeto. Toda chamada de rede
+vive em `src/services/` e a navegação é por estado React (sem rotas por URL) —
+estrutura pronta para empacotar com Capacitor numa fase futura, sem instalar
+agora.

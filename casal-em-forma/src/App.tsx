@@ -3,9 +3,24 @@ import { BottomNav, type Aba } from './components/BottomNav'
 import { CasalScreen } from './screens/CasalScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
 import { PontosScreen } from './screens/PontosScreen'
+import { LoginScreen } from './screens/LoginScreen'
+import { useAuth } from './hooks/useAuth'
 
 function App() {
   const [abaAtiva, setAbaAtiva] = useState<Aba>('casal')
+  const { logado, carregando } = useAuth()
+
+  if (carregando) {
+    return <div className="min-h-full bg-fundo" />
+  }
+
+  if (!logado) {
+    return (
+      <div className="min-h-full bg-fundo text-texto">
+        <LoginScreen />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-full bg-fundo text-texto">

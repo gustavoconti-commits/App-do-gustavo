@@ -128,6 +128,7 @@ export type Redemption = {
   pontos_gastos: number
   descricao: string
   data: string
+  envolve_comida: boolean
   criado_em: string
 }
 

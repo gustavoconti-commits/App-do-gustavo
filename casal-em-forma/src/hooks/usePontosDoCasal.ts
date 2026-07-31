@@ -13,9 +13,10 @@ import {
   calcularCofrinho,
   type HabitoParaPontos,
 } from '../domain/pontos'
-import { hojeISO } from '../utils/data'
+import { hojeISO, diasAtrasISO } from '../utils/data'
 import type {
   Habit,
+  HabitLog,
   LedgerEntry,
   PiggyWithdrawal,
   Profile,
@@ -34,6 +35,8 @@ export type PessoaPontos = {
   totalGanho: number
   cofrinho: number
   lancamentos: LedgerEntry[]
+  habitos: Habit[]
+  logs: HabitLog[]
 }
 
 /** Saldo, total ganho e cofrinho dos dois perfis, mais os históricos que a
@@ -60,11 +63,17 @@ export function usePontosDoCasal(perfis: Profile[]) {
         listarSaques(),
       ])
 
+      // A janela de logs cobre também os últimos 7 dias mesmo antes de
+      // data_inicio — a aderência do dashboard mostra marcações reais,
+      // ainda que só o período de apuração pontue.
+      const inicioJanela =
+        config.data_inicio < diasAtrasISO(hoje, 6) ? config.data_inicio : diasAtrasISO(hoje, 6)
+
       const dadosPessoas = await Promise.all(
         perfis.map(async (perfil) => {
           const [habitos, logs, lancamentos] = await Promise.all([
             listarHabitos(perfil.id),
-            listarLogsNoPeriodo(perfil.id, config.data_inicio, hoje),
+            listarLogsNoPeriodo(perfil.id, inicioJanela, hoje),
             listarLancamentos(perfil.id),
           ])
           const pontosHabitos = calcularPontosHabitos(
@@ -88,7 +97,7 @@ export function usePontosDoCasal(perfis: Profile[]) {
               .filter((s) => s.profile_id === perfil.id)
               .map((s) => ({ valorReais: s.valor_reais })),
           )
-          return { perfil, saldo, totalGanho, cofrinho, lancamentos }
+          return { perfil, saldo, totalGanho, cofrinho, lancamentos, habitos, logs }
         }),
       )
 

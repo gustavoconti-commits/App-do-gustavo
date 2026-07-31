@@ -82,3 +82,16 @@ export function mesesFechaveis(dataInicioISO: string, hojeISO: string): InfoMes[
 export function mesAnteriorISO(anoMesISO: string): string {
   return format(addMonths(paraData(anoMesISO), -1), 'yyyy-MM-dd')
 }
+
+export function diasAtrasISO(dataISO: string, dias: number): string {
+  return format(addDays(paraData(dataISO), -dias), 'yyyy-MM-dd')
+}
+
+/** Os últimos 7 dias terminando em `dataISO`, em ordem cronológica. */
+export function ultimosSeteDias(dataISO: string): string[] {
+  return Array.from({ length: 7 }, (_, i) => diasAtrasISO(dataISO, 6 - i))
+}
+
+export function formatarMesCurto(anoMesISO: string): string {
+  return format(paraData(anoMesISO), 'MMM/yy', { locale: ptBR })
+}

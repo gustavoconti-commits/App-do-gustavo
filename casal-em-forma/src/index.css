@@ -30,6 +30,24 @@
   }
 }
 
+/* Pulso único do Anel do Dia ao completar (seção 3.3) — anulado pelo bloco
+   de prefers-reduced-motion abaixo. */
+@keyframes anel-pulso {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.anel-pulso {
+  animation: anel-pulso 600ms ease-out 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

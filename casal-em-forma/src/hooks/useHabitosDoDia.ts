@@ -1,17 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getISODay } from 'date-fns'
 import { listarHabitos } from '../services/habits'
 import { listarLogsNoPeriodo, marcarHabito, desmarcarHabito } from '../services/habitLogs'
+import { habitosDoDia, type HabitoParaPontos } from '../domain/pontos'
 import type { Habit } from '../types'
 
-function habitoProgramadoNoDia(habito: Habit, dataISO: string): boolean {
-  const diaSemana = getISODay(new Date(`${dataISO}T12:00:00`))
-  return habito.dias_semana.includes(diaSemana)
-}
-
-function habitoAtivoNaData(habito: Habit, dataISO: string): boolean {
-  if (!habito.arquivado_em) return true
-  return dataISO < habito.arquivado_em.slice(0, 10)
+function paraDominio(h: Habit): HabitoParaPontos {
+  return { id: h.id, diasSemana: h.dias_semana, criadoEm: h.criado_em, arquivadoEm: h.arquivado_em }
 }
 
 /** Hábitos programados e ativos para uma data, com o estado de marcação daquele dia. */
@@ -27,11 +21,8 @@ export function useHabitosDoDia(profileId: string | undefined, dataISO: string) 
       listarHabitos(profileId),
       listarLogsNoPeriodo(profileId, dataISO, dataISO),
     ])
-    setHabitos(
-      todosHabitos.filter(
-        (h) => habitoAtivoNaData(h, dataISO) && habitoProgramadoNoDia(h, dataISO),
-      ),
-    )
+    const idsDoDia = new Set(habitosDoDia(todosHabitos.map(paraDominio), dataISO).map((h) => h.id))
+    setHabitos(todosHabitos.filter((h) => idsDoDia.has(h.id)))
     setMarcados(new Set(logs.map((l) => l.habit_id)))
     setCarregando(false)
   }, [profileId, dataISO])

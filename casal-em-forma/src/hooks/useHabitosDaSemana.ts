@@ -1,22 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getISODay } from 'date-fns'
 import { listarHabitos } from '../services/habits'
 import { listarLogsNoPeriodo, marcarHabito, desmarcarHabito } from '../services/habitLogs'
+import { habitoAtivoNaData, habitoProgramadoNoDia, type HabitoParaPontos } from '../domain/pontos'
 import { diasDaSemana } from '../utils/data'
 import type { Habit } from '../types'
 
-function habitoAtivoNaData(habito: Habit, dataISO: string): boolean {
-  const existiaJa = dataISO >= habito.criado_em.slice(0, 10)
-  const aindaNaoArquivado = !habito.arquivado_em || dataISO < habito.arquivado_em.slice(0, 10)
-  return existiaJa && aindaNaoArquivado
-}
-
-function habitoProgramadoNoDia(habito: Habit, dataISO: string): boolean {
-  return habito.dias_semana.includes(getISODay(new Date(`${dataISO}T12:00:00`)))
+function paraDominio(h: Habit): HabitoParaPontos {
+  return { id: h.id, diasSemana: h.dias_semana, criadoEm: h.criado_em, arquivadoEm: h.arquivado_em }
 }
 
 export function habitoEditavelNaData(habito: Habit, dataISO: string): boolean {
-  return habitoAtivoNaData(habito, dataISO) && habitoProgramadoNoDia(habito, dataISO)
+  const dominio = paraDominio(habito)
+  return habitoAtivoNaData(dominio, dataISO) && habitoProgramadoNoDia(dominio, dataISO)
 }
 
 /** Estado da semana inteira (segunda a domingo) para a grade do modo "Semana". */
@@ -34,7 +29,9 @@ export function useHabitosDaSemana(profileId: string | undefined, inicioSemanaIS
       listarHabitos(profileId),
       listarLogsNoPeriodo(profileId, dias[0], dias[6]),
     ])
-    setHabitos(todosHabitos.filter((h) => dias.some((d) => habitoAtivoNaData(h, d))))
+    setHabitos(
+      todosHabitos.filter((h) => dias.some((d) => habitoAtivoNaData(paraDominio(h), d))),
+    )
     setMarcados(new Set(logs.map((l) => `${l.habit_id}|${l.data}`)))
     setCarregando(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
